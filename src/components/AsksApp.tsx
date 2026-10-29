@@ -14,7 +14,7 @@ type Filter = "all" | AskKind;
 const freshSteps = (): Record<StepName, StepState> =>
   Object.fromEntries(STEPS.map((s) => [s, { status: "idle" as const }])) as Record<StepName, StepState>;
 
-export function AsksApp({ initialChannel }: { initialChannel: string }) {
+export function AsksApp({ initialChannel, videos }: { initialChannel: string; videos?: number }) {
   const [input, setInput] = useState(initialChannel);
   const [running, setRunning] = useState(false);
   const [steps, setSteps] = useState(freshSteps);
@@ -69,7 +69,7 @@ export function AsksApp({ initialChannel }: { initialChannel: string }) {
       window.history.replaceState(null, "", url);
 
       try {
-        const res = await fetch(`/api/asks?channel=${encodeURIComponent(target)}`, { signal: ctrl.signal });
+        const res = await fetch(`/api/asks?channel=${encodeURIComponent(target)}${videos ? `&videos=${videos}` : ""}`, { signal: ctrl.signal });
         if (!res.ok || !res.body) {
           const body = (await res.json().catch(() => ({}))) as { error?: string };
           throw new Error(body.error ?? `Request failed (${res.status})`);
@@ -87,7 +87,7 @@ export function AsksApp({ initialChannel }: { initialChannel: string }) {
         if (abort.current === ctrl) setRunning(false);
       }
     },
-    [handle],
+    [handle, videos],
   );
 
   useEffect(() => {
@@ -145,7 +145,7 @@ export function AsksApp({ initialChannel }: { initialChannel: string }) {
           placeholder="youtube.com/@channel or @handle"
           autoComplete="off"
           spellCheck={false}
-          className="h-12 flex-1 rounded-xl border border-line bg-panel px-4 text-base outline-none placeholder:text-muted/70 focus:border-accent"
+          className="h-12 w-full rounded-xl border sm:flex-1 border-line bg-panel px-4 text-base outline-none placeholder:text-muted/70 focus:border-accent"
         />
         <button
           type="submit"
@@ -179,8 +179,8 @@ export function AsksApp({ initialChannel }: { initialChannel: string }) {
       )}
 
       {started && (
-        <section className="mt-10 grid gap-8 lg:grid-cols-[240px_1fr]">
-          <aside className="lg:sticky lg:top-6 lg:self-start">
+        <section className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
+          <aside className="min-w-0 lg:sticky lg:top-6 lg:self-start">
             {channel && (
               <div className="mb-5 flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -195,12 +195,12 @@ export function AsksApp({ initialChannel }: { initialChannel: string }) {
             {stats && (
               <p className="mt-5 text-xs leading-relaxed text-muted">
                 {stats.comments.toLocaleString("en-US")} comments from {stats.videos} videos · {stats.quotaUnits} YouTube quota units ·
-                ${stats.costUsd.toFixed(3)} of AI · {(stats.ms / 1000).toFixed(0)}s{stats.cached ? " · comments from cache" : ""}
+                ${stats.costUsd.toFixed(3)} of AI · {(stats.ms / 1000).toFixed(0)}s{stats.cached ? " · comments from the 24-hour cache" : ""}
               </p>
             )}
           </aside>
 
-          <div>
+          <div className="min-w-0">
             {cards.length > 0 && (
               <div className="mb-5 flex flex-wrap items-center gap-2">
                 <div role="tablist" aria-label="Filter asks" className="flex flex-wrap gap-1 rounded-xl border border-line bg-panel p-1">

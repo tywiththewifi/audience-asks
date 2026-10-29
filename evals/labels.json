@@ -17,13 +17,13 @@
   {
    "fixture": "vidiq",
    "id": "UgyGJLb8FpcjPSxmQWh4AaABAg",
-   "label": "other",
+   "label": "complaint",
    "text": "I don't even get 1000 shorts views each month... I wish they would do stuff for us smaller channels. It would help us afford to create more content..."
   },
   {
    "fixture": "vidiq",
    "id": "UgwlB2CSNO6wlWUmMwF4AaABAg",
-   "label": "other",
+   "label": "complaint",
    "text": "My view counts haven't really increased much at all...and that is telling as to what the algorithm is doing....or, rather, NOT doing."
   },
   {
@@ -47,7 +47,7 @@
   {
    "fixture": "vidiq",
    "id": "UgxDA6Ljl1PbZfo94aJ4AaABAg",
-   "label": "other",
+   "label": "complaint",
    "text": "Richest company on the planet stealing from its own creator base. Amazing."
   },
   {
@@ -131,7 +131,7 @@
   {
    "fixture": "vidiq",
    "id": "Ugyx_sLGF33DBJ6PNXl4AaABAg",
-   "label": "other",
+   "label": "complaint",
    "text": "Wow youtube is literally killing people's ways of making money not worth it"
   },
   {
@@ -239,7 +239,7 @@
   {
    "fixture": "vidiq",
    "id": "UgyMB0CANVLgMXVbiQ14AaABAg",
-   "label": "other",
+   "label": "complaint",
    "text": "Invite is probably to creators that don’t need it."
   },
   {
@@ -731,7 +731,7 @@
   {
    "fixture": "aliabdaal",
    "id": "UgywtTcdY4zA-M5Jfth4AaABAg",
-   "label": "other",
+   "label": "complaint",
    "text": "The “tedious work” that AI outsources is what builds fundamentals for future skill sets. This is not worth the environmental impact."
   },
   {
@@ -1201,6 +1201,61 @@
    "id": "UgzxMytX4RJRN5DITFB4AaABAg",
    "label": "other",
    "text": "Feed him exotic fruits and he will never go a day without demanding dragon fruit."
+  }
+ ],
+ "version": 2,
+ "history": [
+  {
+   "version": 1,
+   "note": "First labels, written before any pipeline output."
+  },
+  {
+   "version": 2,
+   "note": "The complaint definition was widened to include frustration with the subject the channel covers (e.g. YouTube policy on a channel about YouTube). All 200 comments were re-read against the new rule; these changed.",
+   "changes": [
+    {
+     "id": "UgyGJLb8FpcjPSxmQWh4AaABAg",
+     "fixture": "vidiq",
+     "from": "other",
+     "to": "complaint",
+     "text": "I don't even get 1000 shorts views each month... I wish they would do stuff for "
+    },
+    {
+     "id": "UgwlB2CSNO6wlWUmMwF4AaABAg",
+     "fixture": "vidiq",
+     "from": "other",
+     "to": "complaint",
+     "text": "My view counts haven't really increased much at all...and that is telling as to "
+    },
+    {
+     "id": "UgxDA6Ljl1PbZfo94aJ4AaABAg",
+     "fixture": "vidiq",
+     "from": "other",
+     "to": "complaint",
+     "text": "Richest company on the planet stealing from its own creator base. Amazing."
+    },
+    {
+     "id": "Ugyx_sLGF33DBJ6PNXl4AaABAg",
+     "fixture": "vidiq",
+     "from": "other",
+     "to": "complaint",
+     "text": "Wow youtube is literally killing people's ways of making money not worth it"
+    },
+    {
+     "id": "UgyMB0CANVLgMXVbiQ14AaABAg",
+     "fixture": "vidiq",
+     "from": "other",
+     "to": "complaint",
+     "text": "Invite is probably to creators that don’t need it."
+    },
+    {
+     "id": "UgywtTcdY4zA-M5Jfth4AaABAg",
+     "fixture": "aliabdaal",
+     "from": "other",
+     "to": "complaint",
+     "text": "The “tedious work” that AI outsources is what builds fundamentals for future ski"
+    }
+   ]
   }
  ]
 }

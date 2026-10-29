@@ -3,9 +3,9 @@ import { LLMError, MODELS, Meter } from "../llm";
 import { ASK_KINDS, COMMENT_LABELS, type AskCard, type Channel, type Comment, type CommentLabel, type PipelineEvent, type RunStats, type Video } from "../types";
 import { Quota, YouTubeError, getChannel, getRecentVideos, getVideoComments, mapLimit, parseChannelInput } from "../youtube";
 import { buildCard, rankCards } from "./cards";
-import { groupAsks } from "./group";
-import { writeIdea } from "./ideas";
-import { sortComments, worthSorting } from "./sort";
+import { GROUP_SYSTEM, groupAsks } from "./group";
+import { IDEAS_SYSTEM, writeIdea } from "./ideas";
+import { SORT_SYSTEM, sortComments, worthSorting } from "./sort";
 
 export type RunOptions = {
   maxVideos?: number;
@@ -97,7 +97,7 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   const candidates = data.comments.filter(worthSorting);
   let labels: Map<string, CommentLabel>;
   try {
-    const res = await cached(cacheKey("sort", MODELS.sort, candidates.map((c) => c.id)), TTL.day, async () => {
+    const res = await cached(cacheKey("sort", MODELS.sort, SORT_SYSTEM, candidates.map((c) => c.id)), TTL.day, async () => {
       const r = await sortComments(candidates, meter);
       return { ...r, labels: [...r.labels] };
     });
@@ -134,7 +134,7 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   yield { type: "progress", step: "group", status: "start", message: `Grouping ${asks.length} asks into topics` };
   let cards: AskCard[];
   try {
-    const res = await cached(cacheKey("group", MODELS.group, asks.map((c) => c.id)), TTL.day, () =>
+    const res = await cached(cacheKey("group", MODELS.group, GROUP_SYSTEM, asks.map((c) => c.id)), TTL.day, () =>
       groupAsks(asks, meter, { channelTitle: data.channel.title }),
     );
     const byId = new Map(data.comments.map((c) => [c.id, c]));
@@ -160,7 +160,7 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   const work = mapLimit(cards, 4, async (card) => {
     try {
       const comments = card.commentIds.map((id) => byId.get(id)!).sort((a, b) => b.likeCount - a.likeCount);
-      const { value } = await cached(cacheKey("idea", MODELS.ideas, card.ask, card.commentIds), TTL.day, () =>
+      const { value } = await cached(cacheKey("idea", MODELS.ideas, IDEAS_SYSTEM, card.ask, card.commentIds), TTL.day, () =>
         writeIdea(card, comments, context, meter),
       );
       queue.push({ type: "idea", cardId: card.id, idea: value });

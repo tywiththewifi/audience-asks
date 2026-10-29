@@ -41,11 +41,11 @@ for (const name of fixtures) {
   let tp = 0;
   let fp = 0;
   let fn = 0;
-  const confusions: string[] = [];
+  const confusions: { id: string; gold: string; got?: string; text: string }[] = [];
   for (const g of mine) {
     const got = sorted.labels.get(g.id);
     if (got === g.label) exact += 1;
-    else confusions.push(`${g.label}->${got}`);
+    else confusions.push({ id: g.id, gold: g.label, got, text: byId.get(g.id)?.text.slice(0, 160) ?? "" });
     if (isAsk(got) && isAsk(g.label)) tp += 1;
     if (isAsk(got) && !isAsk(g.label)) fp += 1;
     if (!isAsk(got) && isAsk(g.label)) fn += 1;
@@ -76,8 +76,8 @@ for (const name of fixtures) {
     asks: asks.length,
     labelled: mine.length,
     sortAccuracy: exact / mine.length,
-    askPrecision: tp / Math.max(1, tp + fp),
-    askRecall: tp / Math.max(1, tp + fn),
+    askPrecision: tp + fp ? tp / (tp + fp) : null,
+    askRecall: tp + fn ? tp / (tp + fn) : null,
     confusions,
     topicsFirstPass: grouped.firstPass.topics,
     invalidTopicsFirstPass: grouped.firstPass.invalidTopics,
@@ -96,7 +96,7 @@ for (const name of fixtures) {
   console.error(`${name}: ${JSON.stringify(row)}`);
 }
 
-const pct = (x: number) => `${(x * 100).toFixed(0)}%`;
+const pct = (x: number | null) => (x === null ? "n/a" : `${(x * 100).toFixed(0)}%`);
 const table = [
   "| Channel | Comments | Sort accuracy | Ask precision / recall | Real citations (1st pass) | Exact quotes (1st pass) | Topics dropped | Dupes merged / left | Cards | Real citations (final) | Cost | Time |",
   "|---|---|---|---|---|---|---|---|---|---|---|---|",

@@ -1,0 +1,251 @@
+{
+  "at": "2026-10-29T16:07:28.181Z",
+  "rows": [
+    {
+      "fixture": "vidiq",
+      "comments": 457,
+      "sortedComments": 423,
+      "asks": 124,
+      "labelled": 40,
+      "sortAccuracy": 0.825,
+      "askPrecision": 0.6923076923076923,
+      "askRecall": 1,
+      "confusions": [
+        {
+          "id": "UgxSHRWFfndbdfP_wrJ4AaABAg",
+          "gold": "other",
+          "got": "complaint",
+          "text": "29 secs ago youtube is youtubing"
+        },
+        {
+          "id": "Ugze2Jy3gCrv3dwNteh4AaABAg",
+          "gold": "other",
+          "got": "complaint",
+          "text": "Just started a channel with a lot of hope - Thank you so much for letting me know i don’t belong anywhere on this planet"
+        },
+        {
+          "id": "Ugx16vBHCq3pRuEDBJ94AaABAg",
+          "gold": "other",
+          "got": "complaint",
+          "text": "Sucks that I can't monetize my channel but I kinda get it. Monetization is only a dream that I may get my hands on one day."
+        },
+        {
+          "id": "UgzmzX5XCcgajPhWThZ4AaABAg",
+          "gold": "praise",
+          "got": "other",
+          "text": "I'M FAMOUS! 😂 Cool information share 👍🏼"
+        },
+        {
+          "id": "UgyZKtnS7z0ZlE80GgJ4AaABAg",
+          "gold": "other",
+          "got": "question",
+          "text": "I have over 2600 subs, so I more then meet that. Unfortunately, I only have 543 qualified watch hours, and 45k shorts hours.\n\nI'm not sure how I'm gong to meet "
+        },
+        {
+          "id": "UgzSuQGnAtIzU-jLl9Z4AaABAg",
+          "gold": "request",
+          "got": "question",
+          "text": "Would be interesting to see how many stopped watching as from the UK have"
+        },
+        {
+          "id": "UgycYs9tMTgkt7Jh5qh4AaABAg",
+          "gold": "praise",
+          "got": "other",
+          "text": "I'm pretty lucky. I hit monitization in 42 days. Binging your videos & actually applying the tips was super helpful! My new goal is 10k subs by February 1st."
+        }
+      ],
+      "topicsFirstPass": 11,
+      "invalidTopicsFirstPass": 0,
+      "citedRefsRealFirstPass": 1,
+      "quotesExactFirstPass": 1,
+      "topicsDropped": 0,
+      "duplicatesMerged": 0,
+      "nearDuplicatePairsLeft": 0,
+      "finalCards": 11,
+      "finalCitationsReal": 1,
+      "costUsd": 0.1165737,
+      "sortSeconds": 5.907,
+      "totalSeconds": 33.968
+    },
+    {
+      "fixture": "petermckinnon",
+      "comments": 775,
+      "sortedComments": 760,
+      "asks": 142,
+      "labelled": 40,
+      "sortAccuracy": 0.875,
+      "askPrecision": 0.8,
+      "askRecall": 1,
+      "confusions": [
+        {
+          "id": "UgxH3qRSrqyp1VpQMHZ4AaABAg",
+          "gold": "praise",
+          "got": "other",
+          "text": "I’m here for all the journal content! 👏"
+        },
+        {
+          "id": "Ugyt6-UCJzY8N4242814AaABAg",
+          "gold": "praise",
+          "got": "request",
+          "text": "I love these topics! I want a dip pen and ink now. I have always enjoyed your photography videos, even though I'm not a photographer. But these recent videos ab"
+        },
+        {
+          "id": "UgxAE5dmI1bo6iWQg6V4AaABAg",
+          "gold": "complaint",
+          "got": "question",
+          "text": "Specs are definitely enticing for all these chinese phones.\n\nI'm waiting for Apple's custom design LOFIC sensor because Apple Log is still better.\n\nAlso why's t"
+        },
+        {
+          "id": "UgzROEEh7hfvzP8rmTd4AaABAg",
+          "gold": "other",
+          "got": "praise",
+          "text": "Amazing, cool to see how far phones have come with their camera capabilities!"
+        },
+        {
+          "id": "UgyhRDnjnJPxfec0RXF4AaABAg",
+          "gold": "praise",
+          "got": "other",
+          "text": "pete's channel is now my algorithm all in one love it"
+        }
+      ],
+      "topicsFirstPass": 20,
+      "invalidTopicsFirstPass": 0,
+      "citedRefsRealFirstPass": 1,
+      "quotesExactFirstPass": 1,
+      "topicsDropped": 0,
+      "duplicatesMerged": 0,
+      "nearDuplicatePairsLeft": 1,
+      "finalCards": 20,
+      "finalCitationsReal": 1,
+      "costUsd": 0.151745,
+      "sortSeconds": 13.238,
+      "totalSeconds": 53.724
+    },
+    {
+      "fixture": "nilered",
+      "comments": 1000,
+      "sortedComments": 1000,
+      "asks": 60,
+      "labelled": 40,
+      "sortAccuracy": 0.975,
+      "askPrecision": null,
+      "askRecall": null,
+      "confusions": [
+        {
+          "id": "UgxrbjMcm1HO0ujU3GR4AaABAg",
+          "gold": "praise",
+          "got": "other",
+          "text": "Singlehandedly raising the next generation of scientists"
+        }
+      ],
+      "topicsFirstPass": 15,
+      "invalidTopicsFirstPass": 0,
+      "citedRefsRealFirstPass": 1,
+      "quotesExactFirstPass": 1,
+      "topicsDropped": 0,
+      "duplicatesMerged": 0,
+      "nearDuplicatePairsLeft": 0,
+      "finalCards": 15,
+      "finalCitationsReal": 1,
+      "costUsd": 0.0888149,
+      "sortSeconds": 15.017,
+      "totalSeconds": 46.073
+    },
+    {
+      "fixture": "aliabdaal",
+      "comments": 160,
+      "sortedComments": 154,
+      "asks": 47,
+      "labelled": 40,
+      "sortAccuracy": 0.85,
+      "askPrecision": 0.6875,
+      "askRecall": 1,
+      "confusions": [
+        {
+          "id": "UgwFyXHcXHEDZBSWrsR4AaABAg",
+          "gold": "other",
+          "got": "request",
+          "text": "USe codex CLI with claude for image generation instead of canva"
+        },
+        {
+          "id": "UgxwWE_BEPpFaDdnBbV4AaABAg",
+          "gold": "other",
+          "got": "complaint",
+          "text": "Guys is running opus on medium and expecting good results"
+        },
+        {
+          "id": "UgxWb-yFPl8fhzPQbq14AaABAg",
+          "gold": "other",
+          "got": "complaint",
+          "text": "Its probably great for training speaking but not sure if its like just vomiting bullshit for a history test"
+        },
+        {
+          "id": "UgwIGdg9ouGuIFHr6pF4AaABAg",
+          "gold": "other",
+          "got": "complaint",
+          "text": "You should try using Opus with extra effort. It might take a little longer, but the results will likely be much better. Also, your prompt is a bit too generic, "
+        },
+        {
+          "id": "UgwJ9wNTTQGIfoG_2JZ4AaABAg",
+          "gold": "other",
+          "got": "question",
+          "text": "is this..... is this really you Ali or an AI?"
+        },
+        {
+          "id": "Ugzj2gdB_9ITQWwc0qR4AaABAg",
+          "gold": "praise",
+          "got": "other",
+          "text": "> \"This really was a very interesting experiment! Thank you for showing the difference between human creativity and AI speed. Even if video editors won't comple"
+        }
+      ],
+      "topicsFirstPass": 7,
+      "invalidTopicsFirstPass": 0,
+      "citedRefsRealFirstPass": 1,
+      "quotesExactFirstPass": 1,
+      "topicsDropped": 0,
+      "duplicatesMerged": 0,
+      "nearDuplicatePairsLeft": 0,
+      "finalCards": 7,
+      "finalCitationsReal": 1,
+      "costUsd": 0.0621421,
+      "sortSeconds": 10.185,
+      "totalSeconds": 33.117
+    },
+    {
+      "fixture": "joshuaweissman",
+      "comments": 1000,
+      "sortedComments": 993,
+      "asks": 209,
+      "labelled": 40,
+      "sortAccuracy": 0.95,
+      "askPrecision": 0.8,
+      "askRecall": 1,
+      "confusions": [
+        {
+          "id": "Ugxm9LWCuO6ikVJUiuB4AaABAg",
+          "gold": "other",
+          "got": "praise",
+          "text": "Key and Peele gone next level😂"
+        },
+        {
+          "id": "UgzJjzxC3g5DSG4ZSXN4AaABAg",
+          "gold": "other",
+          "got": "question",
+          "text": "Why is yours so small, Josh?"
+        }
+      ],
+      "topicsFirstPass": 20,
+      "invalidTopicsFirstPass": 0,
+      "citedRefsRealFirstPass": 1,
+      "quotesExactFirstPass": 1,
+      "topicsDropped": 0,
+      "duplicatesMerged": 0,
+      "nearDuplicatePairsLeft": 0,
+      "finalCards": 20,
+      "finalCitationsReal": 1,
+      "costUsd": 0.1529333,
+      "sortSeconds": 14.884,
+      "totalSeconds": 45.342
+    }
+  ]
+}
