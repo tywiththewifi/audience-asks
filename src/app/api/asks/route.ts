@@ -1,4 +1,4 @@
-import { runAudienceAsks } from "@/lib/pipeline/run";
+import { DEFAULT_MONTHS, runAudienceAsks } from "@/lib/pipeline/run";
 import { allow } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -11,6 +11,8 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const channel = url.searchParams.get("channel") ?? "";
   const videos = Math.min(50, Math.max(5, Number(url.searchParams.get("videos") ?? 30) || 30));
+  const rawMonths = Number(url.searchParams.get("months") ?? DEFAULT_MONTHS);
+  const months = Number.isFinite(rawMonths) ? Math.min(36, Math.max(0, Math.round(rawMonths))) : DEFAULT_MONTHS;
 
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
   const perHour = Number(process.env.RUNS_PER_HOUR ?? 6);
@@ -25,7 +27,7 @@ export async function GET(req: Request) {
       // Keeps proxies from closing the connection during the long grouping call.
       const ping = setInterval(() => controller.enqueue(encoder.encode(": ping\n\n")), 15000);
       try {
-        for await (const event of runAudienceAsks(channel, { maxVideos: videos })) {
+        for await (const event of runAudienceAsks(channel, { maxVideos: videos, months })) {
           if (req.signal.aborted) break;
           send(event);
         }

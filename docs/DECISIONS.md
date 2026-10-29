@@ -79,3 +79,11 @@ Short records of the choices that shaped Audience Asks. Each one says what we pi
 **Decision:** read `AUDIENCE_ASKS_ANTHROPIC_KEY` first, then `ANTHROPIC_API_KEY`.
 
 **Why:** the cloud environment this was built in reserves `ANTHROPIC_API_KEY` for its own use and strips it from sessions. A second name keeps local, CI and Vercel setups standard.
+
+## D12. Only read the last 12 months by default
+
+**Decision:** skip videos published more than 12 months ago unless the user picks "Any time". Show the comment date range above the results and a date on every quoted comment.
+
+**Why:** "the 30 most recent videos" can reach far back on a channel that posts rarely. For one such channel it went back 18 months, and a fifth of the comments were over a year old. Old asks may already be answered, so they shouldn't rank next to this month's. The uploads playlist runs newest first, so the cutoff also stops paging early and costs no extra quota.
+
+**Trade-off:** a channel that rarely posts gets fewer videos to read, and one with no videos in the window gets a clear message instead of results. "Any time" is one click away.

@@ -2,20 +2,30 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createSSEParser } from "@/lib/sse";
-import type { AskCard, AskKind, Channel, PipelineEvent, RunStats, StepName } from "@/lib/types";
-import { cardToMarkdown, toMarkdown } from "@/lib/markdown";
+import type { AskCard, AskKind, Channel, DateRange, PipelineEvent, RunStats, StepName } from "@/lib/types";
+import { cardToMarkdown, formatDate, toMarkdown } from "@/lib/markdown";
 import { Card } from "./Card";
 import { ProgressRail, type StepState } from "./ProgressRail";
 
 const EXAMPLES = ["@vidIQ", "@PeterMcKinnon", "@aliabdaal", "@NileRed"];
 const STEPS: StepName[] = ["fetch", "sort", "group", "ideas"];
 type Filter = "all" | AskKind;
+const DEFAULT_MONTHS = 12;
+const WINDOWS = [
+  { months: 6, label: "Last 6 months" },
+  { months: 12, label: "Last 12 months" },
+  { months: 0, label: "Any time" },
+];
 
 const freshSteps = (): Record<StepName, StepState> =>
   Object.fromEntries(STEPS.map((s) => [s, { status: "idle" as const }])) as Record<StepName, StepState>;
 
-export function AsksApp({ initialChannel, videos }: { initialChannel: string; videos?: number }) {
+export function AsksApp({ initialChannel, videos, initialMonths }: { initialChannel: string; videos?: number; initialMonths?: number }) {
   const [input, setInput] = useState(initialChannel);
+  const [months, setMonths] = useState(
+    WINDOWS.some((w) => w.months === initialMonths) ? (initialMonths as number) : DEFAULT_MONTHS,
+  );
+  const [range, setRange] = useState<{ range?: DateRange; months: number }>();
   const [running, setRunning] = useState(false);
   const [steps, setSteps] = useState(freshSteps);
   const [channel, setChannel] = useState<Channel>();
@@ -31,6 +41,7 @@ export function AsksApp({ initialChannel, videos }: { initialChannel: string; vi
     switch (ev.type) {
       case "channel":
         setChannel(ev.channel);
+        setRange({ range: ev.range, months: ev.months });
         break;
       case "progress":
         setSteps((s) => ({ ...s, [ev.step]: { status: ev.status === "start" ? "active" : "done", message: ev.message } }));
@@ -61,15 +72,20 @@ export function AsksApp({ initialChannel, videos }: { initialChannel: string; vi
       setRunning(true);
       setSteps(freshSteps());
       setChannel(undefined);
+      setRange(undefined);
       setCards([]);
       setStats(undefined);
       setFatal(undefined);
       const url = new URL(window.location.href);
       url.searchParams.set("channel", target);
+      if (months === DEFAULT_MONTHS) url.searchParams.delete("months");
+      else url.searchParams.set("months", String(months));
       window.history.replaceState(null, "", url);
 
       try {
-        const res = await fetch(`/api/asks?channel=${encodeURIComponent(target)}${videos ? `&videos=${videos}` : ""}`, { signal: ctrl.signal });
+        const query = new URLSearchParams({ channel: target, months: String(months) });
+        if (videos) query.set("videos", String(videos));
+        const res = await fetch(`/api/asks?${query}`, { signal: ctrl.signal });
         if (!res.ok || !res.body) {
           const body = (await res.json().catch(() => ({}))) as { error?: string };
           throw new Error(body.error ?? `Request failed (${res.status})`);
@@ -87,7 +103,7 @@ export function AsksApp({ initialChannel, videos }: { initialChannel: string; vi
         if (abort.current === ctrl) setRunning(false);
       }
     },
-    [handle, videos],
+    [handle, videos, months],
   );
 
   useEffect(() => {
@@ -107,7 +123,7 @@ export function AsksApp({ initialChannel, videos }: { initialChannel: string; vi
   }, [cards]);
 
   const exportMarkdown = () => {
-    const blob = new Blob([toMarkdown(channel?.title ?? lastRun.current, visible)], { type: "text/markdown" });
+    const blob = new Blob([toMarkdown(channel?.title ?? lastRun.current, visible, range?.range)], { type: "text/markdown" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `audience-asks-${(channel?.handle ?? "channel").replace(/^@/, "")}.md`;
@@ -147,6 +163,21 @@ export function AsksApp({ initialChannel, videos }: { initialChannel: string; vi
           spellCheck={false}
           className="h-12 w-full rounded-xl border sm:flex-1 border-line bg-panel px-4 text-base outline-none placeholder:text-muted/70 focus:border-accent"
         />
+        <label className="sr-only" htmlFor="window">
+          Which videos to read
+        </label>
+        <select
+          id="window"
+          value={months}
+          onChange={(e) => setMonths(Number(e.target.value))}
+          className="h-12 rounded-xl border border-line bg-panel px-3 text-sm outline-none focus:border-accent"
+        >
+          {WINDOWS.map((w) => (
+            <option key={w.months} value={w.months}>
+              {w.label}
+            </option>
+          ))}
+        </select>
         <button
           type="submit"
           disabled={!input.trim() || running}
@@ -194,13 +225,20 @@ export function AsksApp({ initialChannel, videos }: { initialChannel: string; vi
             <ProgressRail steps={steps} onRetry={() => void run(lastRun.current)} running={running} />
             {stats && (
               <p className="mt-5 text-xs leading-relaxed text-muted">
-                {stats.comments.toLocaleString("en-US")} comments from {stats.videos} videos · {stats.quotaUnits} YouTube quota units ·
+                {stats.comments.toLocaleString("en-US")} comments from {stats.videos} videos · {stats.quotaUnits} YouTube quota units ·{" "}
                 {stats.costUsd > 0 ? `$${stats.costUsd.toFixed(3)} of AI` : "AI results from cache"} · {(stats.ms / 1000).toFixed(0)}s{stats.cached ? " · comments from the 24-hour cache" : ""}
               </p>
             )}
           </aside>
 
           <div className="min-w-0">
+            {range?.range && (
+              <p className="mb-4 text-sm text-muted">
+                Comments from <span className="text-white">{formatDate(range.range.from)}</span> to{" "}
+                <span className="text-white">{formatDate(range.range.to)}</span>
+                {range.months ? `, on videos from the last ${range.months} months` : ", on the latest videos of any age"}
+              </p>
+            )}
             {cards.length > 0 && (
               <div className="mb-5 flex flex-wrap items-center gap-2">
                 <div role="tablist" aria-label="Filter asks" className="flex flex-wrap gap-1 rounded-xl border border-line bg-panel p-1">

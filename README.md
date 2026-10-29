@@ -28,8 +28,10 @@ npm run dev                  # http://localhost:3000
 From the terminal:
 
 ```bash
-npm run asks -- @vidIQ --videos 20
+npm run asks -- @vidIQ --videos 20 --months 6
 ```
+
+By default it reads up to 30 videos from the last 12 months. `--months 0` (or "Any time" in the app) reads the latest videos whatever their age.
 
 As an MCP tool in Claude Code or Claude Desktop, so you can ask "what do my viewers want next?":
 

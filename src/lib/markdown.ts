@@ -1,5 +1,8 @@
-import type { AskCard } from "./types";
+import type { AskCard, DateRange } from "./types";
 import { commentUrl } from "./youtube";
+
+export const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 
 export function cardToMarkdown(card: AskCard) {
   const lines = [
@@ -10,7 +13,7 @@ export function cardToMarkdown(card: AskCard) {
     card.summary,
     "",
   ];
-  for (const p of card.proof) lines.push(`> "${p.quote}" — ${p.comment.author} ([on "${p.comment.videoTitle}"](${commentUrl(p.comment)}))`, "");
+  for (const p of card.proof) lines.push(`> "${p.quote}" — ${p.comment.author}, ${formatDate(p.comment.publishedAt)} ([on "${p.comment.videoTitle}"](${commentUrl(p.comment)}))`, "");
   if (card.idea) {
     lines.push(
       "**Video idea**",
@@ -27,6 +30,7 @@ export function cardToMarkdown(card: AskCard) {
   return lines.join("\n");
 }
 
-export function toMarkdown(channelTitle: string, cards: AskCard[]) {
-  return [`# What ${channelTitle}'s viewers are asking for`, "", ...cards.map(cardToMarkdown)].join("\n");
+export function toMarkdown(channelTitle: string, cards: AskCard[], range?: DateRange) {
+  const span = range ? [`Comments from ${formatDate(range.from)} to ${formatDate(range.to)}.`, ""] : [];
+  return [`# What ${channelTitle}'s viewers are asking for`, "", ...span, ...cards.map(cardToMarkdown)].join("\n");
 }

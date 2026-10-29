@@ -9,7 +9,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { toMarkdown } from "../src/lib/markdown";
 import { runAudienceAsks } from "../src/lib/pipeline/run";
-import type { AskCard } from "../src/lib/types";
+import type { AskCard, DateRange } from "../src/lib/types";
 
 const server = new McpServer({ name: "audience-asks", version: "0.1.0" });
 
@@ -22,16 +22,27 @@ server.registerTool(
     inputSchema: {
       channel: z.string().describe("A channel @handle, channel URL or UC… channel id"),
       videos: z.number().int().min(5).max(50).optional().describe("How many recent videos to read (default 30)"),
+      months: z
+        .number()
+        .int()
+        .min(0)
+        .max(36)
+        .optional()
+        .describe("Only read videos from the last N months (default 12). 0 reads the latest videos whatever their age."),
       kind: z.enum(["question", "request", "complaint"]).optional().describe("Only return this kind of ask"),
     },
     annotations: { readOnlyHint: true, openWorldHint: true },
   },
-  async ({ channel, videos, kind }) => {
+  async ({ channel, videos, months, kind }) => {
     const cards = new Map<string, AskCard>();
     const errors: string[] = [];
     let title = channel;
-    for await (const ev of runAudienceAsks(channel, { maxVideos: videos ?? 30 })) {
-      if (ev.type === "channel") title = ev.channel.title;
+    let range: DateRange | undefined;
+    for await (const ev of runAudienceAsks(channel, { maxVideos: videos ?? 30, months })) {
+      if (ev.type === "channel") {
+        title = ev.channel.title;
+        range = ev.range;
+      }
       if (ev.type === "card") cards.set(ev.card.id, ev.card);
       if (ev.type === "idea" && cards.has(ev.cardId)) cards.get(ev.cardId)!.idea = ev.idea;
       if (ev.type === "step_error") errors.push(`${ev.step}: ${ev.message}`);
@@ -41,7 +52,7 @@ server.registerTool(
       return { isError: errors.length > 0, content: [{ type: "text", text: errors.join("\n") || "No questions or requests found in recent comments." }] };
     }
     const note = errors.length ? `\n\nSome steps had problems: ${errors.join("; ")}` : "";
-    return { content: [{ type: "text", text: toMarkdown(title, list) + note }] };
+    return { content: [{ type: "text", text: toMarkdown(title, list, range) + note }] };
   },
 );
 

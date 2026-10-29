@@ -36,11 +36,11 @@ export function parseChannelInput(input: string): ChannelRef {
   return { kind: "handle", value: `@${handle}` };
 }
 
-/** Tracks quota units spent, using Google's published costs (every call we make costs 1). */
 export function isQuotaError(err: unknown) {
   return err instanceof YouTubeError && (err.reason === "quotaExceeded" || err.reason === "dailyLimitExceeded");
 }
 
+/** Tracks quota units spent, using Google's published costs (every call we make costs 1). */
 export class Quota {
   units = 0;
 }
@@ -109,11 +109,15 @@ type PlaylistItemsResponse = {
   }[];
 };
 
-/** Latest uploads via the uploads playlist: 1 unit per 50 videos, instead of 100 for search.list. */
-export async function getRecentVideos(channel: Channel, max: number, quota: Quota): Promise<Video[]> {
+/**
+ * Latest uploads via the uploads playlist: 1 unit per 50 videos, instead of 100 for search.list.
+ * With `since` (ms), videos published before it are left out. The playlist runs newest first, so paging stops there.
+ */
+export async function getRecentVideos(channel: Channel, max: number, quota: Quota, since?: number): Promise<Video[]> {
   const videos: Video[] = [];
   let pageToken: string | undefined;
-  while (videos.length < max) {
+  let reachedCutoff = false;
+  while (videos.length < max && !reachedCutoff) {
     const data = await get<PlaylistItemsResponse>(
       "playlistItems",
       {
@@ -126,10 +130,15 @@ export async function getRecentVideos(channel: Channel, max: number, quota: Quot
     );
     for (const item of data.items ?? []) {
       if (item.snippet.title === "Private video" || item.snippet.title === "Deleted video") continue;
+      const publishedAt = item.contentDetails.videoPublishedAt ?? item.snippet.publishedAt;
+      if (since && Date.parse(publishedAt) < since) {
+        reachedCutoff = true;
+        continue;
+      }
       videos.push({
         id: item.contentDetails.videoId,
         title: item.snippet.title,
-        publishedAt: item.contentDetails.videoPublishedAt ?? item.snippet.publishedAt,
+        publishedAt,
         thumbnail: item.snippet.thumbnails?.medium?.url,
       });
     }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { AskCard, Evidence } from "@/lib/types";
+import { formatDate } from "@/lib/markdown";
 import { commentUrl } from "@/lib/youtube";
 
 const EVIDENCE: Record<Evidence, { label: string; className: string; hint: string }> = {
@@ -58,7 +59,7 @@ export function Card({ card, rank, ideasRunning, onCopy }: { card: AskCard; rank
               rel="noreferrer"
               className="mt-1 block truncate text-xs text-muted hover:text-white"
             >
-              {p.comment.author} on “{p.comment.videoTitle}” ↗
+              {p.comment.author} · {formatDate(p.comment.publishedAt)} · on “{p.comment.videoTitle}” ↗
             </a>
           </li>
         ))}

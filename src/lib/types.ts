@@ -59,6 +59,9 @@ export type AskCard = {
   ideaError?: string;
 };
 
+/** Oldest and newest comment dates (ISO) in a run. */
+export type DateRange = { from: string; to: string };
+
 export type StepName = "fetch" | "sort" | "group" | "ideas";
 
 export type RunStats = {
@@ -72,10 +75,13 @@ export type RunStats = {
   topicsDropped: number;
   groundingRetries: number;
   cached: boolean;
+  /** Only videos from the last N months were read. 0 means any age. */
+  months: number;
+  range?: DateRange;
 };
 
 export type PipelineEvent =
-  | { type: "channel"; channel: Channel }
+  | { type: "channel"; channel: Channel; range?: DateRange; months: number }
   | { type: "progress"; step: StepName; status: "start" | "done"; message: string }
   | { type: "card"; card: AskCard }
   | { type: "idea"; cardId: string; idea?: VideoIdea; error?: string }

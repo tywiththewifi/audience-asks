@@ -1,6 +1,17 @@
 import { TTL, cacheKey, cached } from "../cache";
 import { LLMError, MODELS, Meter } from "../llm";
-import { ASK_KINDS, COMMENT_LABELS, type AskCard, type Channel, type Comment, type CommentLabel, type PipelineEvent, type RunStats, type Video } from "../types";
+import {
+  ASK_KINDS,
+  COMMENT_LABELS,
+  type AskCard,
+  type Channel,
+  type Comment,
+  type CommentLabel,
+  type DateRange,
+  type PipelineEvent,
+  type RunStats,
+  type Video,
+} from "../types";
 import { Quota, YouTubeError, getChannel, getRecentVideos, getVideoComments, isQuotaError, mapLimit, parseChannelInput } from "../youtube";
 import { buildCard, rankCards } from "./cards";
 import { GROUP_SYSTEM, groupAsks } from "./group";
@@ -10,6 +21,8 @@ import { SORT_SYSTEM, sortComments, worthSorting } from "./sort";
 export type RunOptions = {
   maxVideos?: number;
   commentsPerVideo?: number;
+  /** Only read videos from the last N months (default 12). 0 reads the latest videos whatever their age. */
+  months?: number;
   /** Supply comments directly (evals and tests) instead of calling YouTube. */
   snapshot?: { channel: Channel; videos: Video[]; comments: Comment[] };
   signal?: AbortSignal;
@@ -17,10 +30,33 @@ export type RunOptions = {
 
 type Fetched = { channel: Channel; videos: Video[]; comments: Comment[]; quotaUnits: number; skippedVideos: number };
 
-async function fetchChannelData(input: string, maxVideos: number, perVideo: number): Promise<Fetched> {
+export const DEFAULT_MONTHS = 12;
+
+/** The cutoff for "the last N months", in ms. Undefined when there's no cutoff. */
+export function monthsAgo(months: number, now = Date.now()) {
+  if (!months) return undefined;
+  const d = new Date(now);
+  d.setUTCMonth(d.getUTCMonth() - months);
+  return d.getTime();
+}
+
+export function dateRange(comments: Comment[]): DateRange | undefined {
+  if (!comments.length) return undefined;
+  let from = comments[0].publishedAt;
+  let to = from;
+  for (const c of comments) {
+    if (c.publishedAt < from) from = c.publishedAt;
+    if (c.publishedAt > to) to = c.publishedAt;
+  }
+  return { from, to };
+}
+
+const shortDate = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+
+async function fetchChannelData(input: string, maxVideos: number, perVideo: number, months: number): Promise<Fetched> {
   const quota = new Quota();
   const channel = await getChannel(parseChannelInput(input), quota);
-  const videos = await getRecentVideos(channel, maxVideos, quota);
+  const videos = await getRecentVideos(channel, maxVideos, quota, monthsAgo(months));
   let skippedVideos = 0;
   // One video's comments failing (after retries) shouldn't sink the whole channel. Quota errors still do.
   const lists = await mapLimit(videos, 8, async (v) => {
@@ -45,6 +81,7 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   const meter = new Meter();
   const maxVideos = opts.maxVideos ?? 30;
   const perVideo = opts.commentsPerVideo ?? 100;
+  const months = opts.months ?? DEFAULT_MONTHS;
   const stats: RunStats = {
     videos: 0,
     comments: 0,
@@ -56,6 +93,7 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
     topicsDropped: 0,
     groundingRetries: 0,
     cached: false,
+    months,
   };
   const finish = (): PipelineEvent => {
     stats.costUsd = Number(meter.costUsd.toFixed(4));
@@ -70,8 +108,8 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
     if (opts.snapshot) {
       data = { ...opts.snapshot, quotaUnits: 0, skippedVideos: 0 };
     } else {
-      const res = await cached(cacheKey("fetch", input.trim().toLowerCase(), maxVideos, perVideo), TTL.day, () =>
-        fetchChannelData(input, maxVideos, perVideo),
+      const res = await cached(cacheKey("fetch", input.trim().toLowerCase(), maxVideos, perVideo, months), TTL.day, () =>
+        fetchChannelData(input, maxVideos, perVideo, months),
       );
       data = res.value;
       stats.cached = res.hit;
@@ -90,12 +128,26 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   }
   stats.videos = data.videos.length;
   stats.comments = data.comments.length;
-  yield { type: "channel", channel: data.channel };
+  stats.range = dateRange(data.comments);
+  yield { type: "channel", channel: data.channel, range: stats.range, months };
+  if (!data.videos.length) {
+    yield {
+      type: "step_error",
+      step: "fetch",
+      message: months
+        ? `This channel hasn't posted a video in the last ${months} months. Choose "Any time" to read its latest videos anyway.`
+        : "This channel has no public videos yet.",
+      retryable: false,
+    };
+    yield finish();
+    return;
+  }
+  const span = stats.range ? ` from ${shortDate(stats.range.from)} to ${shortDate(stats.range.to)}` : "";
   yield {
     type: "progress",
     step: "fetch",
     status: "done",
-    message: `Found ${data.videos.length} recent videos and read ${data.comments.length.toLocaleString("en-US")} comments`,
+    message: `Found ${data.videos.length} recent videos and read ${data.comments.length.toLocaleString("en-US")} comments${span}`,
   };
   if (data.skippedVideos) {
     yield {
