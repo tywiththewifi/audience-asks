@@ -184,7 +184,7 @@ export function AsksApp({ initialChannel }: { initialChannel: string }) {
             {channel && (
               <div className="mb-5 flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                {channel.thumbnail && <img src={channel.thumbnail} alt="" className="h-10 w-10 rounded-full" />}
+                {channel.thumbnail && <img src={channel.thumbnail} alt="" referrerPolicy="no-referrer" className="h-10 w-10 rounded-full" />}
                 <div className="min-w-0">
                   <p className="truncate font-medium">{channel.title}</p>
                   <p className="truncate text-sm text-muted">{channel.handle}</p>
