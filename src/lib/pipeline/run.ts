@@ -1,7 +1,7 @@
 import { TTL, cacheKey, cached } from "../cache";
 import { LLMError, MODELS, Meter } from "../llm";
 import { ASK_KINDS, COMMENT_LABELS, type AskCard, type Channel, type Comment, type CommentLabel, type PipelineEvent, type RunStats, type Video } from "../types";
-import { Quota, YouTubeError, getChannel, getRecentVideos, getVideoComments, mapLimit, parseChannelInput } from "../youtube";
+import { Quota, YouTubeError, getChannel, getRecentVideos, getVideoComments, isQuotaError, mapLimit, parseChannelInput } from "../youtube";
 import { buildCard, rankCards } from "./cards";
 import { GROUP_SYSTEM, groupAsks } from "./group";
 import { IDEAS_SYSTEM, writeIdea } from "./ideas";
@@ -15,14 +15,25 @@ export type RunOptions = {
   signal?: AbortSignal;
 };
 
-type Fetched = { channel: Channel; videos: Video[]; comments: Comment[]; quotaUnits: number };
+type Fetched = { channel: Channel; videos: Video[]; comments: Comment[]; quotaUnits: number; skippedVideos: number };
 
 async function fetchChannelData(input: string, maxVideos: number, perVideo: number): Promise<Fetched> {
   const quota = new Quota();
   const channel = await getChannel(parseChannelInput(input), quota);
   const videos = await getRecentVideos(channel, maxVideos, quota);
-  const lists = await mapLimit(videos, 8, (v) => getVideoComments(v, perVideo, quota));
-  return { channel, videos, comments: lists.flat(), quotaUnits: quota.units };
+  let skippedVideos = 0;
+  // One video's comments failing (after retries) shouldn't sink the whole channel. Quota errors still do.
+  const lists = await mapLimit(videos, 8, async (v) => {
+    try {
+      return await getVideoComments(v, perVideo, quota);
+    } catch (err) {
+      if (isQuotaError(err)) throw err;
+      skippedVideos += 1;
+      return [];
+    }
+  });
+  if (videos.length && skippedVideos === videos.length) throw new YouTubeError("YouTube couldn't return comments for any of these videos. Try again in a minute.");
+  return { channel, videos, comments: lists.flat(), quotaUnits: quota.units, skippedVideos };
 }
 
 /**
@@ -57,7 +68,7 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   let data: Fetched;
   try {
     if (opts.snapshot) {
-      data = { ...opts.snapshot, quotaUnits: 0 };
+      data = { ...opts.snapshot, quotaUnits: 0, skippedVideos: 0 };
     } else {
       const res = await cached(cacheKey("fetch", input.trim().toLowerCase(), maxVideos, perVideo), TTL.day, () =>
         fetchChannelData(input, maxVideos, perVideo),
@@ -67,7 +78,7 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
       stats.quotaUnits = res.hit ? 0 : data.quotaUnits;
     }
   } catch (err) {
-    const quotaHit = err instanceof YouTubeError && (err.reason === "quotaExceeded" || err.reason === "dailyLimitExceeded");
+    const quotaHit = isQuotaError(err);
     yield {
       type: "step_error",
       step: "fetch",
@@ -86,6 +97,14 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
     status: "done",
     message: `Found ${data.videos.length} recent videos and read ${data.comments.length.toLocaleString("en-US")} comments`,
   };
+  if (data.skippedVideos) {
+    yield {
+      type: "step_error",
+      step: "fetch",
+      message: `YouTube wouldn't return comments for ${data.skippedVideos} of ${data.videos.length} videos, so results use the rest.`,
+      retryable: true,
+    };
+  }
   if (!data.comments.length) {
     yield { type: "step_error", step: "fetch", message: "These videos have no public comments to read.", retryable: false };
     yield finish();

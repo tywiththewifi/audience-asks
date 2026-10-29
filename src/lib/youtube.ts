@@ -37,6 +37,10 @@ export function parseChannelInput(input: string): ChannelRef {
 }
 
 /** Tracks quota units spent, using Google's published costs (every call we make costs 1). */
+export function isQuotaError(err: unknown) {
+  return err instanceof YouTubeError && (err.reason === "quotaExceeded" || err.reason === "dailyLimitExceeded");
+}
+
 export class Quota {
   units = 0;
 }
@@ -45,15 +49,22 @@ async function get<T>(endpoint: string, params: Record<string, string>, quota: Q
   const search = new URLSearchParams(params);
   // In the cloud dev container the key is injected by a proxy; everywhere else it comes from env.
   if (process.env.YOUTUBE_API_KEY) search.set("key", process.env.YOUTUBE_API_KEY);
-  quota.units += 1;
-  const res = await fetch(`${BASE}/${endpoint}?${search}`, { cache: "no-store" });
+  let res: Response;
+  for (let attempt = 0; ; attempt++) {
+    quota.units += 1;
+    res = await fetch(`${BASE}/${endpoint}?${search}`, { cache: "no-store" });
+    // YouTube sometimes answers a valid request with a 5xx or a "processingFailure" 400. Those pass on a retry.
+    const transient = res.status >= 500 || (res.status === 400 && (await res.clone().text()).includes("processingFailure"));
+    if (!transient || attempt === 2) break;
+    await new Promise((r) => setTimeout(r, 400 * 2 ** attempt));
+  }
   if (!res.ok) {
     let reason: string | undefined;
     let message = `YouTube API ${endpoint} failed with ${res.status}`;
     try {
       const body = (await res.json()) as { error?: { message?: string; errors?: { reason?: string }[] } };
       reason = body.error?.errors?.[0]?.reason;
-      if (body.error?.message) message = body.error.message;
+      if (body.error?.message) message = body.error.message.replace(/<[^>]+>/g, "");
     } catch {
       // keep the generic message
     }
@@ -185,6 +196,8 @@ export async function getVideoComments(video: Video, maxPerVideo: number, quota:
     }
   } catch (err) {
     if (err instanceof YouTubeError && err.reason === "commentsDisabled") return [];
+    // A later page failing still leaves us the comments we already have.
+    if (comments.length && !isQuotaError(err)) return comments;
     throw err;
   }
   return comments;
