@@ -26,7 +26,7 @@ export function ProgressRail({ steps, onRetry, running }: { steps: Record<StepNa
               <p className={s.status === "idle" ? "text-muted" : "font-medium"}>{LABELS[name]}</p>
               {s.message && <p className={`mt-0.5 ${s.status === "error" ? "text-red-300" : "text-muted"}`}>{s.message}</p>}
               {s.status === "error" && s.retryable && !running && (
-                <button onClick={onRetry} className="mt-2 rounded-lg border border-line px-2.5 py-1 text-xs hover:border-accent">
+                <button onClick={onRetry} className="btn-secondary mt-2 h-7 px-3 text-xs">
                   Retry (finished steps are cached)
                 </button>
               )}

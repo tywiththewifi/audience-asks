@@ -48,7 +48,17 @@ The free YouTube Data API quota is 10,000 units a day. Every call this app makes
 | `commentThreads.list` (100 comments per page) | 1 per page | 30 |
 | **Total for one channel** | | **≈ 32** |
 
-That is about 300 fresh channels a day on the free quota, before caching. `search.list` would cost 100 units per call; we never use it (see DECISIONS.md, D1).
+That is about 300 fresh channels a day on the free quota, before caching. `search.list` costs 100 units per call, so reading a channel never uses it (see DECISIONS.md, D1).
+
+The "already on YouTube?" check is the exception, and it runs only when someone presses the button on an idea:
+
+| Call | Units |
+|---|---|
+| `search.list` (top 10 videos for the idea's search query) | 100 |
+| `videos.list` (views and lengths for those 10) | 1 |
+| **Total per check** | **101** |
+
+Then one Claude Haiku 5.5 call rates each result as the same video, a related one, or different (about $0.0005). See DECISIONS.md, D13.
 
 ## Caching
 
@@ -60,6 +70,8 @@ That is about 300 fresh channels a day on the free quota, before caching. `searc
 | sort model + the exact comment ids | 24 h | a retry after a group failure doesn't re-sort |
 | group model + the exact ask ids | 24 h | |
 | ideas model + topic + its comment ids | 24 h | a retry only rewrites ideas that failed |
+| search query (the YouTube check) | 24 h | each search costs 100 units |
+| check model + ask + titles + result ids | 24 h | the same results get the same ratings |
 
 Caching by inputs (not by channel) is what makes "Retry" cheap: completed steps hit the cache and only the failed step runs again.
 
@@ -77,8 +89,10 @@ src/lib/pipeline/group.ts    step 2 prompt + scoped retry
 src/lib/pipeline/grounding.ts   citation and quote checks, duplicate merging
 src/lib/pipeline/ideas.ts    step 3 prompt
 src/lib/pipeline/cards.ts    viewer counts, evidence badges, ranking
+src/lib/pipeline/existing.ts the "already on YouTube?" check: search, ratings, verdict
 src/lib/pipeline/run.ts      the event stream that ties it together
 src/app/api/asks/route.ts    SSE route handler
+src/app/api/check/route.ts   the YouTube check, one JSON POST per idea
 src/components/              UI
 mcp/server.ts                MCP tool
 evals/                       snapshots, labels, eval runner

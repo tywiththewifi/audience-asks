@@ -1,7 +1,8 @@
 import { useState } from "react";
-import type { AskCard, Evidence } from "@/lib/types";
+import type { AskCard, Evidence, IdeaCheck as Check } from "@/lib/types";
 import { formatDate } from "@/lib/markdown";
 import { commentUrl } from "@/lib/youtube";
+import { IdeaCheck } from "./IdeaCheck";
 
 const EVIDENCE: Record<Evidence, { label: string; className: string; hint: string }> = {
   strong: { label: "Strong evidence", className: "bg-strong/15 text-strong", hint: "8+ different viewers across 2+ videos" },
@@ -11,7 +12,21 @@ const EVIDENCE: Record<Evidence, { label: string; className: string; hint: strin
 
 const KIND: Record<AskCard["kind"], string> = { question: "Question", request: "Request", complaint: "Complaint" };
 
-export function Card({ card, rank, ideasRunning, onCopy }: { card: AskCard; rank: number; ideasRunning: boolean; onCopy: () => Promise<void> }) {
+export function Card({
+  card,
+  rank,
+  ideasRunning,
+  channelId,
+  onCopy,
+  onChecked,
+}: {
+  card: AskCard;
+  rank: number;
+  ideasRunning: boolean;
+  channelId?: string;
+  onCopy: () => Promise<void>;
+  onChecked: (check: Check) => void;
+}) {
   const [copied, setCopied] = useState(false);
   const [showVideos, setShowVideos] = useState(false);
   const ev = EVIDENCE[card.evidence];
@@ -27,7 +42,7 @@ export function Card({ card, rank, ideasRunning, onCopy }: { card: AskCard; rank
         {card.recentCount > 0 && <span className="text-muted">{card.recentCount} in the last 30 days</span>}
       </div>
 
-      <h2 className="mt-3 text-xl font-semibold leading-snug">{card.ask}</h2>
+      <h2 className="mt-3 text-xl font-bold leading-snug tracking-[-0.01em]">{card.ask}</h2>
       <p className="mt-1 text-sm text-muted">
         <strong className="font-semibold text-white">{card.viewerCount}</strong> viewer{card.viewerCount === 1 ? "" : "s"} asked on{" "}
         <button className="underline decoration-line underline-offset-4 hover:decoration-accent" onClick={() => setShowVideos((v) => !v)}>
@@ -51,7 +66,7 @@ export function Card({ card, rank, ideasRunning, onCopy }: { card: AskCard; rank
 
       <ul className="mt-4 space-y-2">
         {card.proof.map((p) => (
-          <li key={p.commentId} className="rounded-xl border-l-2 border-accent/60 bg-ink/60 px-4 py-3 text-sm">
+          <li key={p.commentId} className="rounded-xl border-l-2 border-accent bg-ink/70 px-4 py-3 text-sm">
             <p>“{p.quote}”</p>
             <a
               href={commentUrl(p.comment)}
@@ -65,13 +80,13 @@ export function Card({ card, rank, ideasRunning, onCopy }: { card: AskCard; rank
         ))}
       </ul>
 
-      <div className="mt-5 rounded-xl border border-line p-4">
+      <div className="mt-5 rounded-2xl border border-line-soft bg-raised/60 p-4">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs font-medium uppercase tracking-wider text-accent">Video idea</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-text">Video idea</p>
           {card.idea && (
             <button
               onClick={() => onCopy().then(() => (setCopied(true), setTimeout(() => setCopied(false), 1500)))}
-              className="rounded-lg border border-line px-2.5 py-1 text-xs hover:border-accent"
+              className="btn-secondary h-7 px-3 text-xs"
             >
               {copied ? "Copied" : "Copy idea"}
             </button>
@@ -100,6 +115,7 @@ export function Card({ card, rank, ideasRunning, onCopy }: { card: AskCard; rank
             <div className="h-3 w-1/2 animate-pulse rounded bg-line" />
           </div>
         ) : null}
+        <IdeaCheck card={card} channelId={channelId} onChecked={onChecked} />
       </div>
     </li>
   );

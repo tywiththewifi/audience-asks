@@ -134,166 +134,194 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
   const started = running || cards.length > 0 || Object.values(steps).some((s) => s.status !== "idle");
 
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-24 pt-10 sm:px-6 sm:pt-16">
-      <header className="max-w-2xl">
-        <p className="text-sm font-medium text-accent">Audience Asks</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">What do your viewers keep asking for?</h1>
-        <p className="mt-3 text-base text-muted">
-          Paste any YouTube channel. We read the comments on its recent videos and rank what viewers ask for, with the real
-          comments behind each one and a video idea to answer it.
-        </p>
-      </header>
-
-      <form
-        className="mt-8 flex flex-col gap-3 sm:flex-row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void run(input);
-        }}
-      >
-        <label className="sr-only" htmlFor="channel">
-          Channel URL or @handle
-        </label>
-        <input
-          id="channel"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="youtube.com/@channel or @handle"
-          autoComplete="off"
-          spellCheck={false}
-          className="h-12 w-full rounded-xl border sm:flex-1 border-line bg-panel px-4 text-base outline-none placeholder:text-muted/70 focus:border-accent"
-        />
-        <label className="sr-only" htmlFor="window">
-          Which videos to read
-        </label>
-        <select
-          id="window"
-          value={months}
-          onChange={(e) => setMonths(Number(e.target.value))}
-          className="h-12 rounded-xl border border-line bg-panel px-3 text-sm outline-none focus:border-accent"
-        >
-          {WINDOWS.map((w) => (
-            <option key={w.months} value={w.months}>
-              {w.label}
-            </option>
-          ))}
-        </select>
-        <button
-          type="submit"
-          disabled={!input.trim() || running}
-          className="h-12 rounded-xl bg-accent px-6 font-medium text-white transition hover:brightness-110 disabled:opacity-50"
-        >
-          {running ? "Reading…" : "Read the comments"}
-        </button>
-      </form>
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted">
-        <span>Try</span>
-        {EXAMPLES.map((ex) => (
-          <button
-            key={ex}
-            type="button"
-            onClick={() => {
-              setInput(ex);
-              void run(ex);
-            }}
-            className="rounded-full border border-line px-3 py-1 hover:border-accent hover:text-white"
-          >
-            {ex}
-          </button>
-        ))}
-      </div>
-
-      {fatal && (
-        <div role="alert" className="mt-8 rounded-xl border border-red-500/40 bg-red-500/10 p-4 text-sm">
-          {fatal}
+    <>
+      <nav className="border-b border-line-soft">
+        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-3 px-4 sm:px-6">
+          <a href="/" className="flex items-center gap-2 font-bold tracking-tight">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent" aria-hidden>
+              <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+                <path d="M4 4h12v9H9l-4 3v-3H4z" />
+              </svg>
+            </span>
+            Audience Asks
+          </a>
+          <div className="flex items-center gap-2 text-sm">
+            <a className="hidden px-3 text-muted hover:text-white sm:inline" href="https://github.com/tywiththewifi/audience-asks/blob/main/docs/ARCHITECTURE.md">
+              How it works
+            </a>
+            <a className="btn-secondary h-9 px-4" href="https://github.com/tywiththewifi/audience-asks">
+              Source
+            </a>
+          </div>
         </div>
-      )}
+      </nav>
+      <main className="mx-auto max-w-5xl px-4 pb-24 sm:px-6">
+        <header className="hero-glow -mx-4 px-4 pb-2 pt-12 text-center sm:-mx-6 sm:px-6 sm:pt-20">
+          <span className="chip h-8 gap-2 px-3 text-[11px] font-bold uppercase tracking-[0.14em]">
+            <span className="text-accent-text">Concept</span>
+            <span className="h-3 w-px bg-line" aria-hidden />
+            <span className="font-medium normal-case tracking-normal text-soft">Video ideas from your own comments</span>
+          </span>
+          <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-6xl">What do your viewers keep asking for?</h1>
+          <p className="mx-auto mt-5 max-w-2xl text-lg text-muted">
+            Paste any YouTube channel. We read the comments on its recent videos and rank what viewers ask for, with the real
+            comments behind each one, a video idea to answer it, and a check of whether that video already exists.
+          </p>
+        </header>
 
-      {started && (
-        <section className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
-          <aside className="min-w-0 lg:sticky lg:top-6 lg:self-start">
-            {channel && (
-              <div className="mb-5 flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                {channel.thumbnail && <img src={channel.thumbnail} alt="" referrerPolicy="no-referrer" className="h-10 w-10 rounded-full" />}
-                <div className="min-w-0">
-                  <p className="truncate font-medium">{channel.title}</p>
-                  <p className="truncate text-sm text-muted">{channel.handle}</p>
+        <form
+          className="mx-auto mt-10 flex max-w-3xl flex-col gap-3 sm:flex-row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void run(input);
+          }}
+        >
+          <label className="sr-only" htmlFor="channel">
+            Channel URL or @handle
+          </label>
+          <input
+            id="channel"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="youtube.com/@channel or @handle"
+            autoComplete="off"
+            spellCheck={false}
+            className="h-12 w-full rounded-full border border-line bg-panel px-5 text-base outline-none placeholder:text-muted/70 focus:border-accent sm:flex-1"
+          />
+          <label className="sr-only" htmlFor="window">
+            Which videos to read
+          </label>
+          <select
+            id="window"
+            value={months}
+            onChange={(e) => setMonths(Number(e.target.value))}
+            className="h-12 rounded-full border border-line bg-panel px-4 text-sm outline-none focus:border-accent"
+          >
+            {WINDOWS.map((w) => (
+              <option key={w.months} value={w.months}>
+                {w.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="submit"
+            disabled={!input.trim() || running}
+            className="btn-primary h-12 px-6 text-base disabled:opacity-50"
+          >
+            {running ? "Reading…" : "Read the comments"}
+          </button>
+        </form>
+        <div className="mx-auto mt-4 flex max-w-3xl flex-wrap items-center justify-center gap-2 text-sm text-muted">
+          <span>Try</span>
+          {EXAMPLES.map((ex) => (
+            <button
+              key={ex}
+              type="button"
+              onClick={() => {
+                setInput(ex);
+                void run(ex);
+              }}
+              className="chip h-8 px-3"
+            >
+              {ex}
+            </button>
+          ))}
+        </div>
+
+        {fatal && (
+          <div role="alert" className="mx-auto mt-8 max-w-3xl rounded-2xl border border-red-500/40 bg-red-500/10 p-4 text-sm">
+            {fatal}
+          </div>
+        )}
+
+        {started && (
+          <section className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
+            <aside className="min-w-0 lg:sticky lg:top-6 lg:self-start">
+              {channel && (
+                <div className="mb-5 flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {channel.thumbnail && <img src={channel.thumbnail} alt="" referrerPolicy="no-referrer" className="h-10 w-10 rounded-full" />}
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{channel.title}</p>
+                    <p className="truncate text-sm text-muted">{channel.handle}</p>
+                  </div>
                 </div>
-              </div>
-            )}
-            <ProgressRail steps={steps} onRetry={() => void run(lastRun.current)} running={running} />
-            {stats && (
-              <p className="mt-5 text-xs leading-relaxed text-muted">
-                {stats.comments.toLocaleString("en-US")} comments from {stats.videos} videos · {stats.quotaUnits} YouTube quota units ·{" "}
-                {stats.costUsd > 0 ? `$${stats.costUsd.toFixed(3)} of AI` : "AI results from cache"} · {(stats.ms / 1000).toFixed(0)}s{stats.cached ? " · comments from the 24-hour cache" : ""}
-              </p>
-            )}
-          </aside>
+              )}
+              <ProgressRail steps={steps} onRetry={() => void run(lastRun.current)} running={running} />
+              {stats && (
+                <p className="mt-5 text-xs leading-relaxed text-muted">
+                  {stats.comments.toLocaleString("en-US")} comments from {stats.videos} videos · {stats.quotaUnits} YouTube quota units ·{" "}
+                  {stats.costUsd > 0 ? `$${stats.costUsd.toFixed(3)} of AI` : "AI results from cache"} · {(stats.ms / 1000).toFixed(0)}s{stats.cached ? " · comments from the 24-hour cache" : ""}
+                </p>
+              )}
+            </aside>
 
-          <div className="min-w-0">
-            {range?.range && (
-              <p className="mb-4 text-sm text-muted">
-                Comments from <span className="text-white">{formatDate(range.range.from)}</span> to{" "}
-                <span className="text-white">{formatDate(range.range.to)}</span>
-                {range.months ? `, on videos from the last ${range.months} months` : ", on the latest videos of any age"}
-              </p>
-            )}
-            {cards.length > 0 && (
-              <div className="mb-5 flex flex-wrap items-center gap-2">
-                <div role="tablist" aria-label="Filter asks" className="flex flex-wrap gap-1 rounded-xl border border-line bg-panel p-1">
-                  {(["all", "question", "request", "complaint"] as const).map((f) => (
-                    <button
-                      key={f}
-                      role="tab"
-                      aria-selected={filter === f}
-                      onClick={() => setFilter(f)}
-                      className={`rounded-lg px-3 py-1.5 text-sm capitalize ${filter === f ? "bg-accent-soft text-white" : "text-muted hover:text-white"}`}
-                    >
-                      {f === "all" ? "All" : `${f}s`} <span className="text-muted">{counts[f]}</span>
-                    </button>
+            <div className="min-w-0">
+              {range?.range && (
+                <p className="mb-4 text-sm text-muted">
+                  Comments from <span className="text-white">{formatDate(range.range.from)}</span> to{" "}
+                  <span className="text-white">{formatDate(range.range.to)}</span>
+                  {range.months ? `, on videos from the last ${range.months} months` : ", on the latest videos of any age"}
+                </p>
+              )}
+              {cards.length > 0 && (
+                <div className="mb-5 flex flex-wrap items-center gap-2">
+                  <div role="tablist" aria-label="Filter asks" className="flex flex-wrap gap-1 rounded-full border border-line bg-panel p-1">
+                    {(["all", "question", "request", "complaint"] as const).map((f) => (
+                      <button
+                        key={f}
+                        role="tab"
+                        aria-selected={filter === f}
+                        onClick={() => setFilter(f)}
+                        className={`rounded-full px-3 py-1.5 text-sm capitalize ${filter === f ? "bg-raised text-white" : "text-muted hover:text-white"}`}
+                      >
+                        {f === "all" ? "All" : `${f}s`} <span className="text-muted">{counts[f]}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <label className="flex cursor-pointer items-center gap-2 rounded-full border border-line bg-panel px-4 py-2 text-sm">
+                    <input type="checkbox" checked={recentOnly} onChange={(e) => setRecentOnly(e.target.checked)} className="accent-accent" />
+                    Asked in the last 30 days
+                  </label>
+                  <button onClick={exportMarkdown} className="btn-secondary ml-auto h-9 px-4 text-sm">
+                    Export Markdown
+                  </button>
+                </div>
+              )}
+
+              <ol className="space-y-4">
+                {visible.map((card) => (
+                  <Card
+                    key={card.id}
+                    card={card}
+                    rank={cards.indexOf(card) + 1}
+                    ideasRunning={running}
+                    channelId={channel?.id}
+                    onCopy={() => navigator.clipboard.writeText(cardToMarkdown(card))}
+                    onChecked={(check) => setCards((all) => all.map((c) => (c.id === card.id ? { ...c, check } : c)))}
+                  />
+                ))}
+              </ol>
+
+              {running && cards.length === 0 && (
+                <div className="space-y-4" aria-hidden>
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="h-40 animate-pulse rounded-2xl border border-line bg-panel" />
                   ))}
                 </div>
-                <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-line bg-panel px-3 py-2 text-sm">
-                  <input type="checkbox" checked={recentOnly} onChange={(e) => setRecentOnly(e.target.checked)} className="accent-accent" />
-                  Asked in the last 30 days
-                </label>
-                <button onClick={exportMarkdown} className="ml-auto rounded-xl border border-line px-3 py-2 text-sm hover:border-accent">
-                  Export Markdown
-                </button>
-              </div>
-            )}
+              )}
+              {!running && cards.length > 0 && visible.length === 0 && (
+                <p className="rounded-2xl border border-line p-6 text-sm text-muted">Nothing matches these filters.</p>
+              )}
+            </div>
+          </section>
+        )}
 
-            <ol className="space-y-4">
-              {visible.map((card) => (
-                <Card
-                  key={card.id}
-                  card={card}
-                  rank={cards.indexOf(card) + 1}
-                  ideasRunning={running}
-                  onCopy={() => navigator.clipboard.writeText(cardToMarkdown(card))}
-                />
-              ))}
-            </ol>
-
-            {running && cards.length === 0 && (
-              <div className="space-y-4" aria-hidden>
-                {[0, 1, 2].map((i) => (
-                  <div key={i} className="h-40 animate-pulse rounded-2xl border border-line bg-panel" />
-                ))}
-              </div>
-            )}
-            {!running && cards.length > 0 && visible.length === 0 && (
-              <p className="rounded-xl border border-line p-6 text-sm text-muted">Nothing matches these filters.</p>
-            )}
-          </div>
-        </section>
-      )}
-
-      <footer className="mt-20 text-xs text-muted">
-        An independent concept by Tyler (<a className="underline hover:text-white" href="https://github.com/tywiththewifi/audience-asks">source</a>). Not affiliated with vidIQ or YouTube. Comments are read
-        through the public YouTube Data API.
-      </footer>
-    </main>
+        <footer className="mt-20 text-xs text-muted">
+          An independent concept by Tyler (<a className="underline hover:text-white" href="https://github.com/tywiththewifi/audience-asks">source</a>). Not affiliated with vidIQ or YouTube. Comments are read
+          through the public YouTube Data API.
+        </footer>
+      </main>
+    </>
   );
 }

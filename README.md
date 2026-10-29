@@ -13,7 +13,8 @@
 2. **Sorts** every comment as a question, request, complaint, praise, other or spam (Claude Haiku 5.5, in parallel batches).
 3. **Groups** the questions, requests and complaints into topics, each citing the comments it came from (Claude Opus 5.5). Code checks every citation and quote; anything that doesn't check out is retried once, then dropped.
 4. **Writes a video idea** per topic: two titles in the channel's style, a hook and why it should work.
-5. Streams it all to the page as it happens, so cards appear while ideas are still being written.
+5. **Checks whether that video already exists**, on request: it searches YouTube for the idea, rates which top results already make it (Claude Haiku 5.5), and says whether the idea is open, has a few takers, is crowded, or is one the channel already made, with links, views and age, and how to stand out.
+6. Streams it all to the page as it happens, so cards appear while ideas are still being written.
 
 Filters for questions, requests, complaints and "asked in the last 30 days"; export to Markdown or copy one idea. It works on any public channel with no sign-in.
 
@@ -38,6 +39,8 @@ As an MCP tool in Claude Code or Claude Desktop, so you can ask "what do my view
 ```bash
 claude mcp add audience-asks -e ANTHROPIC_API_KEY=... -e YOUTUBE_API_KEY=... -- npx tsx "$(pwd)/mcp/server.ts"
 ```
+
+It has two tools: `audience_asks` for the ranked asks and ideas, and `check_youtube_for_idea` to see whether a video already exists.
 
 Getting keys: a YouTube Data API v3 key is free from the Google Cloud console (enable "YouTube Data API v3", create an API key). An Anthropic key with a few dollars of credit covers hundreds of channels.
 

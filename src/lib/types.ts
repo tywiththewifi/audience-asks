@@ -41,6 +41,46 @@ export type VideoIdea = {
   titles: [string, string];
   hook: string;
   why: string;
+  /** What a viewer would type into YouTube search to find this video. */
+  searchQuery?: string;
+};
+
+export type SearchResult = {
+  id: string;
+  title: string;
+  description: string;
+  channelId: string;
+  channelTitle: string;
+  publishedAt: string;
+  views?: number;
+  seconds?: number;
+  thumbnail?: string;
+};
+
+/** How closely an existing video answers the ask. */
+export type MatchLevel = "same" | "close";
+
+export type ExistingVideo = SearchResult & { match: MatchLevel; ownChannel: boolean };
+
+/**
+ * "open": no top result makes this video. "some": one or two do. "crowded": three or more.
+ * "yours": the channel itself already made it, which matters more than anyone else having done so.
+ */
+export type CheckVerdict = "open" | "some" | "crowded" | "yours";
+
+export type IdeaCheck = {
+  query: string;
+  verdict: CheckVerdict;
+  /** One sentence on what's out there, from the model. */
+  summary: string;
+  /** One sentence on how to make this video stand out from what exists. */
+  angle: string;
+  matches: ExistingVideo[];
+  searched: number;
+  checkedAt: string;
+  quotaUnits: number;
+  costUsd: number;
+  cached: boolean;
 };
 
 export type AskCard = {
@@ -57,6 +97,7 @@ export type AskCard = {
   likeCount: number;
   idea?: VideoIdea;
   ideaError?: string;
+  check?: IdeaCheck;
 };
 
 /** Oldest and newest comment dates (ISO) in a run. */

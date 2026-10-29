@@ -27,6 +27,15 @@ export function cardToMarkdown(card: AskCard) {
       "",
     );
   }
+  if (card.check) {
+    const same = card.check.matches.filter((m) => m.match === "same");
+    lines.push(`**Already on YouTube?** ${card.check.summary}`, "");
+    if (card.check.angle) lines.push(`How to stand out: ${card.check.angle}`, "");
+    for (const m of same.slice(0, 5)) {
+      lines.push(`- [${m.title}](https://www.youtube.com/watch?v=${m.id}) — ${m.ownChannel ? "your channel" : m.channelTitle}, ${formatDate(m.publishedAt)}`);
+    }
+    if (same.length) lines.push("");
+  }
   return lines.join("\n");
 }
 

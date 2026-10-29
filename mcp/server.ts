@@ -8,6 +8,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { toMarkdown } from "../src/lib/markdown";
+import { checkIdea } from "../src/lib/pipeline/existing";
 import { runAudienceAsks } from "../src/lib/pipeline/run";
 import type { AskCard, DateRange } from "../src/lib/types";
 
@@ -53,6 +54,40 @@ server.registerTool(
     }
     const note = errors.length ? `\n\nSome steps had problems: ${errors.join("; ")}` : "";
     return { content: [{ type: "text", text: toMarkdown(title, list, range) + note }] };
+  },
+);
+
+server.registerTool(
+  "check_youtube_for_idea",
+  {
+    title: "Is this video already on YouTube?",
+    description:
+      "Searches YouTube for a video idea and says which of the top results already make that video, with links, views and age, plus how a new version could stand out. Use it after audience_asks, or whenever a creator wants to know if an idea is taken. Each call spends 100 YouTube API quota units.",
+    inputSchema: {
+      ask: z.string().describe("What viewers are asking for, in a sentence"),
+      query: z.string().describe("What a viewer would type into YouTube search to find this video"),
+      titles: z.array(z.string()).min(1).max(2).optional().describe("Proposed titles for the video"),
+      channel_id: z.string().optional().describe("The creator's UC… channel id, to flag videos they already made"),
+    },
+    annotations: { readOnlyHint: true, openWorldHint: true },
+  },
+  async ({ ask, query, titles, channel_id }) => {
+    try {
+      const check = await checkIdea({ ask, summary: ask, query, titles: titles ?? [ask], channelId: channel_id });
+      const lines = [`**${check.verdict}**: ${check.summary}`, ""];
+      if (check.angle) lines.push(`How to stand out: ${check.angle}`, "");
+      for (const m of check.matches) {
+        lines.push(
+          `- [${m.match}] [${m.title}](https://www.youtube.com/watch?v=${m.id}) by ${m.ownChannel ? "your channel" : m.channelTitle}, ${m.publishedAt.slice(0, 10)}${
+            m.views === undefined ? "" : `, ${m.views.toLocaleString("en-US")} views`
+          }`,
+        );
+      }
+      lines.push("", `Checked the top ${check.searched} results for "${check.query}".`);
+      return { content: [{ type: "text", text: lines.join("\n") }] };
+    } catch (err) {
+      return { isError: true, content: [{ type: "text", text: (err as Error).message }] };
+    }
   },
 );
 

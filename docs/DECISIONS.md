@@ -2,9 +2,9 @@
 
 Short records of the choices that shaped Audience Asks. Each one says what we picked, what we gave up, and when we'd change our mind.
 
-## D1. No `search.list`
+## D1. No `search.list` for reading a channel
 
-**Decision:** find a channel's videos through its uploads playlist (`channels.list` → `playlistItems.list`), never through `search.list`.
+**Decision:** find a channel's videos through its uploads playlist (`channels.list` → `playlistItems.list`), never through `search.list`. (The one place search is worth its price is the "already on YouTube?" check, which runs only when asked; see D13.)
 
 **Why:** `search.list` costs 100 quota units a call. The uploads playlist costs 1 unit per 50 videos. A full channel read is about 32 units instead of 130+, so the free 10,000-unit quota covers roughly 300 channels a day instead of about 75.
 
@@ -87,3 +87,20 @@ Short records of the choices that shaped Audience Asks. Each one says what we pi
 **Why:** "the 30 most recent videos" can reach far back on a channel that posts rarely. For one such channel it went back 18 months, and a fifth of the comments were over a year old. Old asks may already be answered, so they shouldn't rank next to this month's. The uploads playlist runs newest first, so the cutoff also stops paging early and costs no extra quota.
 
 **Trade-off:** a channel that rarely posts gets fewer videos to read, and one with no videos in the window gets a clear message instead of results. "Any time" is one click away.
+
+## D13. "Already on YouTube?" runs when asked, not for every idea
+
+**Decision:** each video idea gets a button that searches YouTube for it (`search.list` for the top 10 results, `videos.list` for their views and lengths), then asks Claude Haiku 5.5 which results already make that video. The verdict (no close match, a few exist, crowded, or "you already made this") is computed in code from those ratings, and every match is shown with its link, views and age.
+
+**Why:** a search costs 100 quota units, three times a whole channel read. Checking all 20 ideas on every run would spend 2,000 units, so the free 10,000 a day would cover five visitors. On demand, a typical visitor checks the two or three ideas they care about. The model only sees result numbers (`r1`…`r10`) and code drops any it wasn't given, the same rule as the comment citations. Results are cached for 24 hours by search query, and checks have their own per-visitor limit (`CHECKS_PER_HOUR`, default 20).
+
+**Trade-off:** "no close match" means none in the top 10 results for one query, not that the video doesn't exist anywhere. The query comes from the idea step ("what a viewer would type"), and the panel shows it so the user can judge it. There's no labelled eval for the match ratings yet; that's the next one to add.
+
+## D14. vidIQ's visual language, not its brand
+
+**Decision:** the UI uses the tokens measured on vidiq.com in October 2026: the `#0a0d15` page, `#0d1017` cards with 16px corners and a `#2d2f39` border, `#a2a7b8` secondary text, the `#0463fd` brand blue, pill buttons with a gradient border, and the Satoshi typeface.
+
+**Why:** this is a concept for vidIQ, so it should look like it could ship inside vidIQ. It keeps its own name and mark and says it isn't affiliated.
+
+**Trade-off:** Satoshi is loaded from Fontshare's API rather than committed, because its license (ITF FFL) allows self-hosting but not publishing the font files in a public repository.
+

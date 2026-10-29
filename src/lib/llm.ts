@@ -6,6 +6,7 @@ export const MODELS = {
   sort: process.env.SORT_MODEL ?? "claude-haiku-5-5",
   group: process.env.GROUP_MODEL ?? "claude-opus-5-5",
   ideas: process.env.IDEAS_MODEL ?? "claude-opus-5-5",
+  check: process.env.CHECK_MODEL ?? "claude-haiku-5-5",
 };
 
 /** USD per million tokens [input, output]. Update when models change. */
