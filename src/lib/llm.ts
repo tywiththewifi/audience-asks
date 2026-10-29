@@ -39,7 +39,10 @@ export class Meter {
 
 let client: Anthropic | undefined;
 function getClient() {
-  client ??= new Anthropic({ maxRetries: 3 });
+  const apiKey = process.env.AUDIENCE_ASKS_ANTHROPIC_KEY ?? process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new LLMError("No Anthropic API key is set on the server (ANTHROPIC_API_KEY).", false);
+  // AUDIENCE_ASKS_ANTHROPIC_KEY exists because some hosts (Claude Code cloud) reserve ANTHROPIC_API_KEY.
+  client ??= new Anthropic({ apiKey, maxRetries: 3 });
   return client;
 }
 
@@ -58,9 +61,10 @@ export async function structured<S extends z.ZodType>(opts: {
   maxTokens?: number;
   meter: Meter;
 }): Promise<z.infer<S>> {
+  const client = getClient();
   let response;
   try {
-    response = await getClient().messages.parse({
+    response = await client.messages.parse({
       model: opts.model,
       max_tokens: opts.maxTokens ?? 16000,
       system: opts.system,

@@ -31,7 +31,7 @@ it("labels evidence by viewers and spread", () => {
 });
 
 it("ranks by distinct viewers, then likes", () => {
-  const base = { kind: "question", summary: "", commentIds: [], videos: [], proof: [], evidence: "thin", recentCount: 0 } as const;
+  const base = { kind: "question" as const, summary: "", commentIds: [], videos: [], proof: [], evidence: "thin" as const, recentCount: 0 };
   const ranked = rankCards([
     { ...base, id: "a", ask: "a", viewerCount: 3, likeCount: 1 },
     { ...base, id: "b", ask: "b", viewerCount: 9, likeCount: 0 },

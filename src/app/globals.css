@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #0b0d12;
+  --color-panel: #12151c;
+  --color-line: #232836;
+  --color-muted: #8b93a7;
+  --color-accent: #7c5cff;
+  --color-accent-soft: #7c5cff22;
+  --color-strong: #2fd08a;
+  --color-some: #f5b544;
+  --color-thin: #8b93a7;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-ink);
+  color: #e8ebf2;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.animate-rise { animation: rise 320ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise { animation: none; }
+}

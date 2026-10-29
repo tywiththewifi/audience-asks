@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Comment } from "../types";
 import { LLMError, MODELS, type Meter, structured } from "../llm";
-import { type GroundedTopic, type RawTopic, groundTopics, mergeDuplicates } from "./grounding";
+import { type GroundedTopic, type RawTopic, groundTopics, mergeDuplicates, quoteIsInComment } from "./grounding";
 
 /** Upper bound on comments sent to the grouping step. Above it we keep the most-liked ones. */
 export const GROUP_MAX_COMMENTS = 1500;
@@ -43,7 +43,28 @@ export type GroupResult = {
   retried: boolean;
   mergedDuplicates: number;
   rawTopicCount: number;
+  /** First-pass citation health, before the retry. Evals track these. */
+  firstPass: { refs: number; validRefs: number; quotes: number; validQuotes: number; topics: number; invalidTopics: number };
 };
+
+function citationStats(topics: RawTopic[], refs: Map<string, Comment>) {
+  let n = 0;
+  let ok = 0;
+  let qn = 0;
+  let qok = 0;
+  for (const t of topics) {
+    for (const r of t.comment_refs) {
+      n += 1;
+      if (refs.has(r)) ok += 1;
+    }
+    for (const q of t.quotes) {
+      qn += 1;
+      const c = refs.get(q.ref);
+      if (c && quoteIsInComment(q.quote, c.text)) qok += 1;
+    }
+  }
+  return { refs: n, validRefs: ok, quotes: qn, validQuotes: qok };
+}
 
 export async function groupAsks(
   asks: Comment[],
@@ -67,6 +88,11 @@ export async function groupAsks(
   });
 
   const firstPass = groundTopics(first.topics as RawTopic[], refs);
+  const firstStats = {
+    ...citationStats(first.topics as RawTopic[], refs),
+    topics: first.topics.length,
+    invalidTopics: firstPass.invalid.length,
+  };
   let valid = firstPass.valid;
   let dropped = 0;
   let retried = false;
@@ -97,5 +123,5 @@ export async function groupAsks(
   }
 
   const { topics, merged } = mergeDuplicates(valid);
-  return { topics, dropped, retried, mergedDuplicates: merged, rawTopicCount: first.topics.length };
+  return { topics, dropped, retried, mergedDuplicates: merged, rawTopicCount: first.topics.length, firstPass: firstStats };
 }

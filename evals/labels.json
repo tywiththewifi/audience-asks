@@ -1,0 +1,1206 @@
+{
+ "labeller": "Claude Code, in a separate pass from the pipeline, before seeing any model output. Pending a spot-check by Tyler.",
+ "guide": "Same label definitions as SORT_SYSTEM in src/lib/pipeline/sort.ts.",
+ "labels": [
+  {
+   "fixture": "vidiq",
+   "id": "UgzO54Hj9kiON7Sbmwh4AaABAg",
+   "label": "other",
+   "text": "Yeah this is nuts"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgxsFtq9sSrQ7lzHeNR4AaABAg",
+   "label": "other",
+   "text": "Just hit 28 today lol I’m an animation creator doing all kinds of animation mediums, I feel like I might not make it but I’ll do what I can"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgyGJLb8FpcjPSxmQWh4AaABAg",
+   "label": "other",
+   "text": "I don't even get 1000 shorts views each month... I wish they would do stuff for us smaller channels. It would help us afford to create more content..."
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgwlB2CSNO6wlWUmMwF4AaABAg",
+   "label": "other",
+   "text": "My view counts haven't really increased much at all...and that is telling as to what the algorithm is doing....or, rather, NOT doing."
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgwUaSrhxnaPlDLr6Z94AaABAg",
+   "label": "other",
+   "text": "My Wi-Fi worked extra hard for this masterpiece."
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgzMVQ46EBTwAuAAtSt4AaABAg",
+   "label": "praise",
+   "text": "thanks you"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "Ugw_mQDvykbmjB8Locp4AaABAg",
+   "label": "other",
+   "text": "I am a monetized creator and i havent been invited😔, this would really help me massively since soonly i turn 20 years old, meaning the real life jobs will start"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgxDA6Ljl1PbZfo94aJ4AaABAg",
+   "label": "other",
+   "text": "Richest company on the planet stealing from its own creator base. Amazing."
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgxlKt-2Tw8fzl7_s914AaABAg",
+   "label": "praise",
+   "text": "Just got monetized this morning! Thankx Vid IQ for all the support and help along the way. Keep at it all you can make it. 😊"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "Ugxth60gd1GPb8qECRR4AaABAg",
+   "label": "other",
+   "text": "For everyone watching this video, hopefully you get monetized before next year! Wish you all the best!!!"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgxSHRWFfndbdfP_wrJ4AaABAg",
+   "label": "other",
+   "text": "29 secs ago youtube is youtubing"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgzPzGgs0hzVr_Fj2o54AaABAg",
+   "label": "other",
+   "text": "A vantagem é Live e vendas"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgzCCq6cFikKFY6ZqyZ4AaABAg",
+   "label": "question",
+   "text": "I am trying to think how i could apply this to a hobby channel where i make and build things. I'm sure there is a way but my brain needs to be reprogramed to lo"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgwoQAIY3qdwrKVWQip4AaABAg",
+   "label": "other",
+   "text": "I'm only 15 starting youtube while going to school so I can help my family. We got this guys! Big thanks to my brother who's helping me out 😂😂"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "Ugze2Jy3gCrv3dwNteh4AaABAg",
+   "label": "other",
+   "text": "Just started a channel with a lot of hope - Thank you so much for letting me know i don’t belong anywhere on this planet"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgwoPxLRcDMAM2YsC694AaABAg",
+   "label": "other",
+   "text": "Just cause of a bonus 😂"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgzM7VQ5WIxiULYsvJN4AaABAg",
+   "label": "other",
+   "text": "I can't wait to hve my 4k watch time"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "Ugzfqj3-u43cL3zIw-p4AaABAg",
+   "label": "other",
+   "text": "Good morning ☕🍫🤗"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgzmTbA5qiAki5nT0BR4AaABAg",
+   "label": "other",
+   "text": "Like if you saw Andrew Stanton's ted Talk about storytelling."
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgymhamNo69wCnmTxVx4AaABAg",
+   "label": "other",
+   "text": "Applying to these campaigns will also trigger them to investigate your channel before enabling the offers and most of the time they will find faults with your c"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "Ugx16vBHCq3pRuEDBJ94AaABAg",
+   "label": "other",
+   "text": "Sucks that I can't monetize my channel but I kinda get it. Monetization is only a dream that I may get my hands on one day."
+  },
+  {
+   "fixture": "vidiq",
+   "id": "Ugyx_sLGF33DBJ6PNXl4AaABAg",
+   "label": "other",
+   "text": "Wow youtube is literally killing people's ways of making money not worth it"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgwcT74uC4tyKKZyGKN4AaABAg",
+   "label": "praise",
+   "text": "Starting the video with a common claim and then revealing the truth with a dramatic twist is a brilliant directorial move! This style transforms slow introducti"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "Ugz1QUdfDJx1bdlQHOF4AaABAg",
+   "label": "other",
+   "text": "I got the invite. Let's go! 🔥"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgzmzX5XCcgajPhWThZ4AaABAg",
+   "label": "praise",
+   "text": "I'M FAMOUS! 😂 Cool information share 👍🏼"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgyfVWWcD19U8IkkhZt4AaABAg",
+   "label": "other",
+   "text": "RIP Heath Ledger"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgxzQEh5g_qq1YOfoyB4AaABAg",
+   "label": "other",
+   "text": "Hnm like being a YouTuber is really not easy"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgwqrOqu4NsByX04RXZ4AaABAg",
+   "label": "other",
+   "text": "I sit a little under 3000, 4.8k subscribers and tired stressed and overworked for other reasons. Hope I can get it but it’s been very hard. Will try and get my "
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgwqVKLHeyxDkec8T_R4AaABAg",
+   "label": "question",
+   "text": "If you’ve gained monetisation through longform requirements does the YPP not cover both longform and shorts? I’ve not achieved this yet so I’m still unsure."
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgyZKtnS7z0ZlE80GgJ4AaABAg",
+   "label": "other",
+   "text": "I have over 2600 subs, so I more then meet that. Unfortunately, I only have 543 qualified watch hours, and 45k shorts hours. I'm not sure how I'm gong to meet t"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgweuwleM6pjhf5NqC54AaABAg",
+   "label": "other",
+   "text": "I made this account and stared uploading 4 days now ots time for the great lock-in"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgzSuQGnAtIzU-jLl9Z4AaABAg",
+   "label": "request",
+   "text": "Would be interesting to see how many stopped watching as from the UK have"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgwV1zH650KKaJQ0r9t4AaABAg",
+   "label": "praise",
+   "text": "Fab live and awesome ending 😆"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgycYs9tMTgkt7Jh5qh4AaABAg",
+   "label": "praise",
+   "text": "I'm pretty lucky. I hit monitization in 42 days. Binging your videos & actually applying the tips was super helpful! My new goal is 10k subs by February 1st."
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgwR7O1NsB1X2JOpf4Z4AaABAg",
+   "label": "other",
+   "text": "I’m about to start doing all 3 😂😂😂"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgzYf43cpcZvD1DZynt4AaABAg",
+   "label": "other",
+   "text": "We Should Freak Out and Even Quit its Really Hard"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgwCIkMcuVcLkr9088Z4AaABAg",
+   "label": "question",
+   "text": "How to edit a video clear like other and get millions of viewers how to write a description and put strong title and thumbnail 😢😢"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgwSdF1hZWTViPF6Srp4AaABAg",
+   "label": "other",
+   "text": "918 subscribers (so close) with 499 hours watch time. Lost a load when it fell outside a year. Currently doing an Iceland series. I have drone shots, adobe prem"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgwIff-WFgT7HCfDOrJ4AaABAg",
+   "label": "other",
+   "text": "I think in my opinion, we have to look for a YouTube competitor across board"
+  },
+  {
+   "fixture": "vidiq",
+   "id": "UgyMB0CANVLgMXVbiQ14AaABAg",
+   "label": "other",
+   "text": "Invite is probably to creators that don’t need it."
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "Ugz-tLGQjsJNZs9wX4F4AaABAg",
+   "label": "praise",
+   "text": "I’m in love! I’m so in love! ❤ thanks for taking me to that happy place!"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "Ugx7zaRGsCzH1SnMsk94AaABAg",
+   "label": "other",
+   "text": "I have a tin with watercolors, handmade from some metal instruction plaque. Made by my great grandfather, during comunism time in Poland. Was on his desk since "
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgxWFG6KOVdVOxhyqbB4AaABAg",
+   "label": "other",
+   "text": "Pete is reminding me more and more of Troy Sanders from the band Mastodon"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgzQCzHR3lBDi2lR2Mt4AaABAg",
+   "label": "praise",
+   "text": "Love the energy and vibe of this video. Thank you for sharing."
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgxH3qRSrqyp1VpQMHZ4AaABAg",
+   "label": "praise",
+   "text": "I’m here for all the journal content! 👏"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgxwPcER0MG8PK0ISPh4AaABAg",
+   "label": "other",
+   "text": "I was in full panic when the moment finally came. Can only imagine what that felt like standing there"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgwdbU7BnESwGPNbsPx4AaABAg",
+   "label": "praise",
+   "text": "I just have to tell you: I’ve loved you and your content for a long time, but to see you being a genuine geek about journaling and art is like… tickling me in a"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "Ugw5Kk-lxWMXDOjrt494AaABAg",
+   "label": "other",
+   "text": "A shift from digital to analog obsession 😃🤙"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgwS8Gh5sCMgfZR3-JR4AaABAg",
+   "label": "praise",
+   "text": "Love the ongoing journal saga Pete! I’m a therapist and between your videos and a few other creators’, I send them to clients for inspiration. Contrary to popul"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgyX1kKXGR5eOe_fGzF4AaABAg",
+   "label": "other",
+   "text": "only peter could make a twenty minute video talking about stamps 😂"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgwclaS_7bsVj7UWA9x4AaABAg",
+   "label": "praise",
+   "text": "I used to do some of this and found so much joy looking back on those journals. I honestly don’t know why I stopped. Thank you for re-igniting my love for journ"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "Ugx9HoE8bYFVxXGughd4AaABAg",
+   "label": "other",
+   "text": "Pete has single handedly been responsible for all our purchases for nearly a decade💪💪💪"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgyeZCjVCzKIWyqMVzJ4AaABAg",
+   "label": "other",
+   "text": "Oppo for the win"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgwCo7_22DnnjgzOFSZ4AaABAg",
+   "label": "praise",
+   "text": "Dude, your handwriting is so effortlessly good. Mine looks like I'm a doctor writing prescriptions."
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgxkCD4JjOJ6cvQEP1F4AaABAg",
+   "label": "other",
+   "text": "Here 31 seconds after upload to support Peter! And first comment!"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgyVR1aHRu-ZAj0_XOd4AaABAg",
+   "label": "praise",
+   "text": "I’m not a photographer or a filmmaker, just a vlogger and this video was so inspirational. Keep it up Peter! Thanks for being so motivational. You rock dude!"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "Ugyt6-UCJzY8N4242814AaABAg",
+   "label": "praise",
+   "text": "I love these topics! I want a dip pen and ink now. I have always enjoyed your photography videos, even though I'm not a photographer. But these recent videos ab"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgxbQ-YkHzGQRjPxIIJ4AaABAg",
+   "label": "other",
+   "text": "I never stopped sharing my passionfor photography good or bad gear and recently it paid of, I won a amateur photo contest that paid me my dream camera, a Sony A"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "Ugz-ObzfVu7y3sh3iw54AaABAg",
+   "label": "other",
+   "text": "Absolutely hyped to see the prototype! Insta cop for me"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "Ugx08Co2F0KQPe0Hqm54AaABAg",
+   "label": "other",
+   "text": "News flash he doesnt use notebooks, he just sells em"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "Ugwib1uJD88JFnWthoF4AaABAg",
+   "label": "praise",
+   "text": "Wow…such a cool project, Peter! You aced it! Thank you!❤"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgwVa0L-ATnxisrp0c54AaABAg",
+   "label": "other",
+   "text": "I have that ruler, love it. Use it all the time. Need more tins for sure.❤"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgxGWJ1Rlorq2F9qkg94AaABAg",
+   "label": "complaint",
+   "text": "Pretty pictures, but then what's up with the sound quality?"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgyzSE1e44pG5jNVwBR4AaABAg",
+   "label": "question",
+   "text": "Shot on what? I can't read that tiny font 😂😂😂"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "Ugz5--q3FNoJaEwG82B4AaABAg",
+   "label": "praise",
+   "text": "Another great video. My energy level has just gone from an 8 to a 9. Thank you"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgxAE5dmI1bo6iWQg6V4AaABAg",
+   "label": "complaint",
+   "text": "Specs are definitely enticing for all these chinese phones. I'm waiting for Apple's custom design LOFIC sensor because Apple Log is still better. Also why's the"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgxFmUFIrNHVYhXukgJ4AaABAg",
+   "label": "other",
+   "text": "\"at least its not raining.\" 2 seconds later \"....its raining.\""
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgzXmHH3tzEi6LwoBN54AaABAg",
+   "label": "praise",
+   "text": "The amount of prep that clearly went into that tower shot makes the final photo hit so much harder. Documenting the whole aerial shoot on film with the Red Bull"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "Ugxj3vmMp3FroImfq6F4AaABAg",
+   "label": "praise",
+   "text": "For the first time in years, I've sat down and watched one of your videos. Man, have I missed this content. I've been struggling to find a good way to keep myse"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgzROEEh7hfvzP8rmTd4AaABAg",
+   "label": "other",
+   "text": "Amazing, cool to see how far phones have come with their camera capabilities!"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "Ugx5ZEO6sEdvPhqIUF94AaABAg",
+   "label": "praise",
+   "text": "Appsolultly the best photographer I know you are a true legend In my book please don’t stop creating"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgzBxyllrwIoUeR4gIx4AaABAg",
+   "label": "praise",
+   "text": "*It's a good day when pete uploads ❤*"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgxLaZblZGc5gKxT40F4AaABAg",
+   "label": "praise",
+   "text": "My newest favourite series! I recently got my first Field Guides (Found a reseller in New Zealand!) thanks to you! And I have been having a blast filling them i"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgxqtJeosUQ35Ql8Cmh4AaABAg",
+   "label": "praise",
+   "text": "absolutely awesome channel"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgzxZcL8t1ZsYMjIze14AaABAg",
+   "label": "praise",
+   "text": "Sehr geiles Video, motiviert."
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgyhRDnjnJPxfec0RXF4AaABAg",
+   "label": "praise",
+   "text": "pete's channel is now my algorithm all in one love it"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgyNkFKK-jEKTzLOyXd4AaABAg",
+   "label": "praise",
+   "text": "I came for photography lessons years ago, I stayed for your unbridled optimism and raw human experience. Never stop being you, Pete. Much love my guy"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgzaPUMYQW-1oFwckfV4AaABAg",
+   "label": "other",
+   "text": "Love my Lochby! I have 3 field notes in there at all times: - a travel notebook. One page per day whenever I am on a trip - a \"work and ideas\" notebook - a brai"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgwupACDv03cVytldOZ4AaABAg",
+   "label": "praise",
+   "text": "Bro will always be my favourite youtuber🙌"
+  },
+  {
+   "fixture": "petermckinnon",
+   "id": "UgwioIRI3zx0NS-TmsV4AaABAg",
+   "label": "request",
+   "text": "Keep em coming these make me happy. Can we get a fountain pen video? Or just a general pen video?"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgzppTnUny0uqSaVeyx4AaABAg",
+   "label": "other",
+   "text": "Our high school chemistry teacher had once spilled some type of nasty acid on himself and it had melted away large chunks of his skin and muscle on his leg and "
+  },
+  {
+   "fixture": "nilered",
+   "id": "Ugx7SHl4H4ODPaU7OqV4AaABAg",
+   "label": "other",
+   "text": "I feel like this is how they were coming up with arsenic wallpapers in the Victorian age 😂 as an artist that vermillion/cadmium red color was enviable - but con"
+  },
+  {
+   "fixture": "nilered",
+   "id": "Ugw-L6RhQsw7-ms1-it4AaABAg",
+   "label": "other",
+   "text": "From ruber ball to SpongeBob what a great character development"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgxKKfZ74zqoDww_If54AaABAg",
+   "label": "other",
+   "text": "Pfff! This is just the Paprika to Tumeric alchemy first invented by the ancient sumerians"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgwZOY-MBL1Qm4hi7H94AaABAg",
+   "label": "other",
+   "text": "I love that in chemistry something that eats through glass is just perfectly fine in a plastic bottle"
+  },
+  {
+   "fixture": "nilered",
+   "id": "Ugz4Ww46hjU3PVv__z54AaABAg",
+   "label": "other",
+   "text": "Remember- when Nile's been cooking, never lick the spatula 😂"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgzqqZE3OlV-QtUmQlt4AaABAg",
+   "label": "other",
+   "text": "My dumb ahh thought bro was gonna create decaf"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgxaBX5Bq3GqTzYOHMh4AaABAg",
+   "label": "other",
+   "text": "Bro can do this but cant keep some coffee beans from burning 😭😭"
+  },
+  {
+   "fixture": "nilered",
+   "id": "Ugz_Zb6yEAgLtwFSeCF4AaABAg",
+   "label": "other",
+   "text": "\"should be fine as long as I'm careful\" are some famous last words"
+  },
+  {
+   "fixture": "nilered",
+   "id": "Ugyq-Zma2EmV7X0-AZx4AaABAg",
+   "label": "other",
+   "text": "I've done this experiment with my students. When add the 1,2 dicloroethane i heated the mixture to 60°C so the reaction was more faster and the yield is better."
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgxWiZ5LWVz6qy_1n-J4AaABAg",
+   "label": "other",
+   "text": "\"I have here a cup of coffee, and i want to try to extract its soul.\" Most normal nilered phrase"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgxVx6OHZ3VlA15Y8et4AaABAg",
+   "label": "other",
+   "text": "\"they should gently react\" *proceeds to flashbang us with a grenade level explosion*"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgywPVRsuvt4Zgin3CV4AaABAg",
+   "label": "other",
+   "text": "I was fully convinced Nile was going to give life to his coffee, only to murder it and extract its now living soul."
+  },
+  {
+   "fixture": "nilered",
+   "id": "Ugx9ssVBmsv1SrK93Jp4AaABAg",
+   "label": "other",
+   "text": "A friend who works at a chem lab got exposed to a tiny drop of HF acid. After decontamination, he was rushed over to the most advanced medical facility in the a"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgzvsFueqirXKEO1JS14AaABAg",
+   "label": "other",
+   "text": "12:40 NileRed discovers sunk cost fallacy"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgxYUmnADFkbGfm1tfV4AaABAg",
+   "label": "other",
+   "text": "Gallium: \"A load of goo from me to you!\" Indium: \"I want a divorce.\""
+  },
+  {
+   "fixture": "nilered",
+   "id": "Ugy6vyXmtzCNlRPeAnx4AaABAg",
+   "label": "other",
+   "text": "This takes me back - I used to work in a cleanroom manufacturing LCDs (by hand, no fancy machines back in the day!) and hydrofluoric acid was used to etch off a"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgxuflPMvxH3-JlinIh4AaABAg",
+   "label": "other",
+   "text": "\"it should slowly heat up and gently react\" said Dumbledor quietly"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgzDXEQGrrHOoj1E8VR4AaABAg",
+   "label": "other",
+   "text": "The mould looked like vanilla, orange, mango, vanilla oreo and chocolate ice cream tbh 🥀"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgzbB35UbOlC4pBMrEF4AaABAg",
+   "label": "other",
+   "text": "\"Speak now or forever sing soprano.\""
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgwwBmXfAANFbjtVXu54AaABAg",
+   "label": "other",
+   "text": "Dark, darker, yet darker still"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgyVMjRlNFFGvH-EUPh4AaABAg",
+   "label": "other",
+   "text": "Nilered doing all sorts of side quests out here"
+  },
+  {
+   "fixture": "nilered",
+   "id": "Ugy58xdZUW57Cu7yyPR4AaABAg",
+   "label": "other",
+   "text": "Instant Coffee is made by torturing the coffee beans to extract way more ‘coffee’ than we could ever do at home. The beans used for instant are typically also v"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgzY4ypcopLyiV_r1DR4AaABAg",
+   "label": "praise",
+   "text": "i don’t understand a thing this guy is saying but i love his tone so im subscribing"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgyBdml6tEcJeU30lYN4AaABAg",
+   "label": "other",
+   "text": "\"I then rented the basement of a warehouse where I invited people to fight each other\""
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgwAxn3Rq7CCAmGtbN54AaABAg",
+   "label": "other",
+   "text": "\"I don't recommend anyone trying this.\" that's a good warning, cause this is definitely a real long-weekend kind of project anyone can do"
+  },
+  {
+   "fixture": "nilered",
+   "id": "Ugx6HzipDONR1RBp-J14AaABAg",
+   "label": "other",
+   "text": "If memory serves, galinstan is used as a replacement for mercury in thermometers due to its less poisonous nature."
+  },
+  {
+   "fixture": "nilered",
+   "id": "Ugy6_Sc439WfnBgZGH94AaABAg",
+   "label": "other",
+   "text": "NileRed: “This will slowly heat up and gently react… 😌” *(proceeds to flashbang camera, revealing utter destruction)*"
+  },
+  {
+   "fixture": "nilered",
+   "id": "Ugz-h32_oXxc4PXdlHd4AaABAg",
+   "label": "other",
+   "text": "It bounced!😎"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgxrbjMcm1HO0ujU3GR4AaABAg",
+   "label": "praise",
+   "text": "Singlehandedly raising the next generation of scientists"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgyPTGYB7qnQrVtTxK54AaABAg",
+   "label": "other",
+   "text": "I witnessed a wild accident with Hydrofluoric Acid some years ago. I'm a student at the Federal University of Rio de Janeiro and one of my professor's once had "
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgxgvtK4rzYP8srdLqF4AaABAg",
+   "label": "other",
+   "text": "Nile got kicked out of the Evil Scientist club because he's too nice and just too darned happy."
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgzrBIHZactXuIP2xs14AaABAg",
+   "label": "other",
+   "text": "\"SCATole\" unskippable thumb 🤙😭"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgwWuW8wRYNLxN3gjf54AaABAg",
+   "label": "other",
+   "text": "Resumindo:o cara é o bounty breaker da gringa."
+  },
+  {
+   "fixture": "nilered",
+   "id": "Ugz2v57YD7uALPxYRkB4AaABAg",
+   "label": "other",
+   "text": "As someone who has a degree in Chemical Engineering, it's honestly fascinating to watch these videos of Nile going \"yeah I'll try to buy some specialty chemical"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgzzZUkIGBlMuozLzHt4AaABAg",
+   "label": "other",
+   "text": "The gang: What's your favorite hobby? Nile: magnets"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgwZQphlFHt_HdPZJSN4AaABAg",
+   "label": "other",
+   "text": "\"gently react\" *proceeds to show MULTIPLE frames of a completely white screen*"
+  },
+  {
+   "fixture": "nilered",
+   "id": "Ugx8HMi1bml0Vnu-GNl4AaABAg",
+   "label": "other",
+   "text": "Yes I am cringing in my chair thinking about how bad it could be if that chain wrapped around any part of your arm"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgzESvIKlL4a5O28m-14AaABAg",
+   "label": "other",
+   "text": "Surprisingly safe experiment"
+  },
+  {
+   "fixture": "nilered",
+   "id": "UgzxfflCa3Sp5RKjhQR4AaABAg",
+   "label": "other",
+   "text": "He's going to turn water into wine."
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgzKZmqR9ylP4a9Ai1R4AaABAg",
+   "label": "question",
+   "text": "How do u prevent burnt out as a self employed? Where do you go from if you feel like taking a break from the business?"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgywtTcdY4zA-M5Jfth4AaABAg",
+   "label": "other",
+   "text": "The “tedious work” that AI outsources is what builds fundamentals for future skill sets. This is not worth the environmental impact."
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "Ugy8-nsqxqjyBv4DLSF4AaABAg",
+   "label": "other",
+   "text": "so it begins..."
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgyBOXkqrjhNlIrRRJh4AaABAg",
+   "label": "praise",
+   "text": "Thank you so much"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgybqX9fx_jkGo3TTWJ4AaABAg",
+   "label": "other",
+   "text": "99% Student here 💀"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgwFyXHcXHEDZBSWrsR4AaABAg",
+   "label": "other",
+   "text": "USe codex CLI with claude for image generation instead of canva"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgxwWE_BEPpFaDdnBbV4AaABAg",
+   "label": "other",
+   "text": "Guys is running opus on medium and expecting good results"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgzeaU_mDyrQ26_Arvd4AaABAg",
+   "label": "other",
+   "text": "This has been the same experience for us with editing. You hear all the hype that Claude can fully edit videos, you spend all day trying to get something useabl"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgxWb-yFPl8fhzPQbq14AaABAg",
+   "label": "other",
+   "text": "Its probably great for training speaking but not sure if its like just vomiting bullshit for a history test"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgzTVdHX6pbYowWVD8p4AaABAg",
+   "label": "praise",
+   "text": "this is a perfect ali video, love to see it"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgxnKQ4YYOFhtYGFXS94AaABAg",
+   "label": "other",
+   "text": "😂 „.. for dealing with all this faff” 39:19"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgxCRYZ4UnNKLOgEXIl4AaABAg",
+   "label": "question",
+   "text": "Why are you not using Wispr Flow on your laptop?"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgzLvcEMyqPWcxd4Id14AaABAg",
+   "label": "other",
+   "text": "Lifestyle"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgzMkzlkIg4g1PryQwl4AaABAg",
+   "label": "other",
+   "text": "I'm honestly most curious about how the conversation with the wife went later. lol"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgwIGdg9ouGuIFHr6pF4AaABAg",
+   "label": "other",
+   "text": "You should try using Opus with extra effort. It might take a little longer, but the results will likely be much better. Also, your prompt is a bit too generic, "
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgyW3qOaVY5PHJznEyp4AaABAg",
+   "label": "request",
+   "text": "The useful comparison is total time to a publishable edit, including all the corrections. Would love to see that beside the human edit- not just the generation "
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgyBvFOX1CVm-H8OrvV4AaABAg",
+   "label": "request",
+   "text": "Hey can you make a video on how to start ai😊😅😅"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgwJ9wNTTQGIfoG_2JZ4AaABAg",
+   "label": "other",
+   "text": "is this..... is this really you Ali or an AI?"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgzSM0JtC2QWbfs8Eud4AaABAg",
+   "label": "question",
+   "text": "how are you using claude in hk?? many ppl i know have had their claude accounts banned even when using VPN"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgwvMDYnKag5P6ib3Jx4AaABAg",
+   "label": "praise",
+   "text": "🤣 I appreciate hearing the pitch change in his voice in the beginning and seeing him think before sharing 🙌🏼"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgxQ0T1KAV2v5bl0-vV4AaABAg",
+   "label": "other",
+   "text": "I've tried so many various different tools for this, and I think we're just not quite there yet in letting AI deal with it. I think the human touch is still a w"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "Ugy1a1kMJ1nppmzEgEZ4AaABAg",
+   "label": "other",
+   "text": "When it thrives it thrives"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgxJ7ihPHTqONhp7tDZ4AaABAg",
+   "label": "other",
+   "text": "Must be fun for the human editors to edit this video 😅"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "Ugzef98kZU871DtmM7l4AaABAg",
+   "label": "question",
+   "text": "How do you spin your pen like that?"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgziuNPFCcwnro8Ql014AaABAg",
+   "label": "question",
+   "text": "You talked about price but never about value. Did your clients get more value? Any example of your successful client? Any example of an unsuccessful client? Add"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "Ugxlkna21syx7d5xqrh4AaABAg",
+   "label": "other",
+   "text": "Hello skill lover 💗😗"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgzDEA1Ob_vXP0ucGB14AaABAg",
+   "label": "other",
+   "text": "Lifestyle"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "Ugw9T55VhHtvBDspLA54AaABAg",
+   "label": "praise",
+   "text": "Lovely topic😁, your breakdown is great. I’m not Gen Z either. I’m fully with you & agree-the key is to be, just to stay in the present🎁 , be grounded in the now"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "Ugwb1hStm-1gP_1SDNB4AaABAg",
+   "label": "other",
+   "text": "Next time you can give the AI your Whisper transcription as an srt or json dot file so the ai can match up the words with the video. It saves the AI having to d"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgxccrQxOOxQB5mMwzF4AaABAg",
+   "label": "spam",
+   "text": "Sold half my BTC holdings and rotated to Groknam."
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgwohOurDk5hk_mm5yZ4AaABAg",
+   "label": "spam",
+   "text": "3 Years from now when all the AI Agents are using Groknam to function, you would wish you put more into the Groknam project."
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "Ugwc3Ruot0YFz5IBGvZ4AaABAg",
+   "label": "other",
+   "text": "Lifestyle"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgzaELQPoiOQ8uP3Ls54AaABAg",
+   "label": "question",
+   "text": "This was such a great video. It was really interesting to see your thought process. It just sort of helps me think about how I use AI and solve problems. Thanks"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgyirIBwS_p8aLh3JTp4AaABAg",
+   "label": "other",
+   "text": "The feeling of the editor when he was editing this video : 🥺💔"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgyseaJak_h4fkgvKZJ4AaABAg",
+   "label": "complaint",
+   "text": "Cut off unexpectedly at the end. Salty editor?"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "Ugzj2gdB_9ITQWwc0qR4AaABAg",
+   "label": "praise",
+   "text": "> \"This really was a very interesting experiment! Thank you for showing the difference between human creativity and AI speed. Even if video editors won't comple"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "Ugztc9DAksY04hpS4iV4AaABAg",
+   "label": "other",
+   "text": "Parth's final edit was definitely smoother and cleaner. I would imagine a smart video editor would still use tools like Remotion to get the motion graphics and "
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "Ugw7lOjRmzTReHqTMfZ4AaABAg",
+   "label": "other",
+   "text": "Lifestyle"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgzMZBXnlR4tZiTS5CZ4AaABAg",
+   "label": "other",
+   "text": "Pro-editors will still have a job until AI figures out audience retention haha"
+  },
+  {
+   "fixture": "aliabdaal",
+   "id": "UgywJmvSjSA-tnet92p4AaABAg",
+   "label": "question",
+   "text": "What laptop is this?"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugwv1dbUc_m3PYVXa5F4AaABAg",
+   "label": "praise",
+   "text": "I love the sign language! Soooo great for babies!"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgwLH5UcAz8d7I9Gfg94AaABAg",
+   "label": "other",
+   "text": "Reminds me of the marshmallow bananas"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgzjRyJD5BcytdoEXC14AaABAg",
+   "label": "praise",
+   "text": "Love me some chef Mike"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgybPB0jXE4VLypPeF94AaABAg",
+   "label": "other",
+   "text": "11:30 is honestly crazy. 11:00 is pushing it, but that's a whole hour after I'd call safe to open."
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugx8P_gKt4swXzd8eOd4AaABAg",
+   "label": "other",
+   "text": "31:08 the pits are edible, too. They are boiled, and then roasted. The unripe fruit (with pith) is used as a vegan shredded meat replacement."
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgyrC158_D_dpQUZNFN4AaABAg",
+   "label": "other",
+   "text": "One way to do promotion 😅😂"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugy53RpzOSfPglSAou94AaABAg",
+   "label": "other",
+   "text": "We call that banana \"chompa kela\" Kela means banana. Chompa is typically a girls name. idk why those two are together but i love it."
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgwSXGG-I9lzULQKHx14AaABAg",
+   "label": "other",
+   "text": "BABY NINOOOOO"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgyiligW4wLa97R3IQR4AaABAg",
+   "label": "other",
+   "text": "But also, even though like my chicken moist, rotisserie chicken is also what I like but even though it’s not moist and can be dry, I love the skin and when I ha"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgxKwJcU0eNgUoA2mnx4AaABAg",
+   "label": "question",
+   "text": "I've always wondered what kind of house Enes lives in himself"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugxm9LWCuO6ikVJUiuB4AaABAg",
+   "label": "other",
+   "text": "Key and Peele gone next level😂"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgzJjzxC3g5DSG4ZSXN4AaABAg",
+   "label": "other",
+   "text": "Why is yours so small, Josh?"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgyldGsZgxq1ZwJNSvV4AaABAg",
+   "label": "other",
+   "text": "Noo cheese !?"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgyqLm_K64I3JwDi34p4AaABAg",
+   "label": "other",
+   "text": "This reminded me of the Key and Peal Master Chef skit."
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgyM6lBYt3N3fvwu-7R4AaABAg",
+   "label": "other",
+   "text": "Joshua \"I am incapable of tasting salt\" Weissman"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgyWbGTYXTsl1S0g5vF4AaABAg",
+   "label": "request",
+   "text": "Given Maya's reaction, I'm thinking a vegan cookbook could be in your future. That chicken parm was EPIC!"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugx2lHVMnLolP3FMgDp4AaABAg",
+   "label": "other",
+   "text": "This is what Ja’marr Chase sees whenever he plays the ravens"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugy9jG-knp38mbL8XCZ4AaABAg",
+   "label": "other",
+   "text": "take that back i love Ms HIga and her mission"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgyDvYgJqFLAQuJjmt54AaABAg",
+   "label": "question",
+   "text": "Is that Joe Streetfight?!"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugz9Cse23SWM-K9ghFV4AaABAg",
+   "label": "praise",
+   "text": "The Chef Mike pairing is genuinely inspired — having a former corporate chef explain why these items died makes every recreation twice as interesting. The Choco"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugy0bFO3hd4gp3IVVIV4AaABAg",
+   "label": "other",
+   "text": "15:11 with all due respect his favourite dish is probably air"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgwNes5RicYg1xfQBBJ4AaABAg",
+   "label": "praise",
+   "text": "Saying more with sign language really made me smile tbh, it shows your devotion to teaching communication skills to your child and I really admire that."
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgyAmxHBpHVoU4pRt4t4AaABAg",
+   "label": "other",
+   "text": "Ufc Jason staham is a funny and great chef"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgwG1GP8e4C7AGMFIk54AaABAg",
+   "label": "other",
+   "text": "the choke with rahhh put a shirt on 😂"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugw5z3wKDXF8Z_IV2r94AaABAg",
+   "label": "request",
+   "text": "Boiled goose next"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgwGj9iWFNFNfCjq9Wx4AaABAg",
+   "label": "other",
+   "text": "Jesus, these people don’t live in houses they live in… I don’t even know what you would call these facilities."
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugw9n6gL-OQay2BJ_qR4AaABAg",
+   "label": "praise",
+   "text": "So glad that you're teaching him sign language"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgzgUaRBDgw-ZJPS_7V4AaABAg",
+   "label": "other",
+   "text": "2:20 Spam isn't a struggle meal anymore because its expensive now."
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugw5dezMCkdP1nHq6UF4AaABAg",
+   "label": "other",
+   "text": "Pretty average banana actually"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgwixmjMtxWwXB1CNUR4AaABAg",
+   "label": "other",
+   "text": "The worlds first banana is huge!!"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugwu7eczovf7NYVpDyZ4AaABAg",
+   "label": "praise",
+   "text": "That vegan tostada dish looked incredible. I mean it all looked great, but a vegan dish appealing to me like that is crazy."
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugzjko8YTU2rYD65gp14AaABAg",
+   "label": "other",
+   "text": "Hahaha the key and peele reference"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgwtpDSUBvgFAJa0Sp14AaABAg",
+   "label": "other",
+   "text": "I think that ninja slushie machine got way too excited..."
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugzal1rMMEmMSaryNHN4AaABAg",
+   "label": "praise",
+   "text": "Oh shoot, you own a restaurant now?! Congratulations on that monumentous achievement!"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgyA1DWURJQIeh3D2b14AaABAg",
+   "label": "other",
+   "text": "An air fryer is just a mini convection oven."
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgxmLmkEgQ5plEuM4Ol4AaABAg",
+   "label": "other",
+   "text": "The way he said \"Yeah\" at the beningging🥹🥹🥹"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgwCwOhk6dx_0rdTU2F4AaABAg",
+   "label": "other",
+   "text": "Pan fry them in neutral oil. Drizzle sweetened condensed milk over them. Side with mexican rice. You're welcome."
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgzkfzF-J70KnXDlCKB4AaABAg",
+   "label": "other",
+   "text": "I had a friend that worked in a factory packaging hams. They had 3 tiers of ham that got increasingly expensive and the only difference was the sticker put on t"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "Ugz7tgi6BM624eYDAnV4AaABAg",
+   "label": "other",
+   "text": "Sorry, I've had cheap and mid-level air fryers, and my Typhur kills them all. No nonstick coating flaking that happens to ALL air fryer baskets. I can fry a who"
+  },
+  {
+   "fixture": "joshuaweissman",
+   "id": "UgzxMytX4RJRN5DITFB4AaABAg",
+   "label": "other",
+   "text": "Feed him exotic fruits and he will never go a day without demanding dragon fruit."
+  }
+ ]
+}
