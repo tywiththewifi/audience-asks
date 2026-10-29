@@ -4,13 +4,6 @@
 
 <!-- Demo GIF and live link go here once deployed -->
 
-```
-#1  How do you get monetized with shorts views but not watch hours?      Strong evidence
-    23 viewers asked on 7 videos
-    "I only have 543 qualified watch hours, and 45k shorts hours. I'm not sure how I'm gong to meet that."
-    Video idea: "Shorts Views Don't Count. Here's What Does." …
-```
-_(Illustrative card shape. Real output lands in EVALS.md after the first live run.)_
 
 ## What it does
 
