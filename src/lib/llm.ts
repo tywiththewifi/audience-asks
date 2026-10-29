@@ -64,13 +64,15 @@ export async function structured<S extends z.ZodType>(opts: {
   const client = getClient();
   let response;
   try {
-    response = await client.messages.parse({
+    // Streamed so long grouping calls don't hit the SDK's non-streaming time limit.
+    const stream = client.messages.stream({
       model: opts.model,
       max_tokens: opts.maxTokens ?? 16000,
       system: opts.system,
       messages: [{ role: "user", content: opts.user }],
       output_config: { effort: opts.effort, format: zodOutputFormat(opts.schema) },
     });
+    response = await stream.finalMessage();
   } catch (err) {
     if (err instanceof Anthropic.AuthenticationError) throw new LLMError("The Anthropic API key is missing or invalid.", false);
     if (err instanceof Anthropic.RateLimitError) throw new LLMError("Rate limited by the Anthropic API. Try again in a minute.", true);
