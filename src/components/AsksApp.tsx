@@ -195,7 +195,7 @@ export function AsksApp({ initialChannel, videos }: { initialChannel: string; vi
             {stats && (
               <p className="mt-5 text-xs leading-relaxed text-muted">
                 {stats.comments.toLocaleString("en-US")} comments from {stats.videos} videos · {stats.quotaUnits} YouTube quota units ·
-                ${stats.costUsd.toFixed(3)} of AI · {(stats.ms / 1000).toFixed(0)}s{stats.cached ? " · comments from the 24-hour cache" : ""}
+                {stats.costUsd > 0 ? `$${stats.costUsd.toFixed(3)} of AI` : "AI results from cache"} · {(stats.ms / 1000).toFixed(0)}s{stats.cached ? " · comments from the 24-hour cache" : ""}
               </p>
             )}
           </aside>

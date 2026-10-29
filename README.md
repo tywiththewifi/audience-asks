@@ -2,7 +2,9 @@
 
 **Paste any YouTube channel and see what its viewers keep asking for**, ranked by how many different people asked, with the real comments behind each ask and a video idea to answer it.
 
-<!-- Demo GIF and live link go here once deployed -->
+**Try it:** [audience-asks.vercel.app](https://audience-asks.vercel.app)
+
+![Audience Asks on vidIQ's channel: the progress rail, filters and the top-ranked ask with its quoted comments](docs/screenshot.png)
 
 
 ## What it does
