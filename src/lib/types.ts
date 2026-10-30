@@ -118,11 +118,24 @@ export type RunStats = {
   cached: boolean;
   /** Only videos from the last N months were read. 0 means any age. */
   months: number;
+  /** Oldest and newest comment read. */
   range?: DateRange;
+  /** Oldest and newest video read. */
+  videoRange?: DateRange;
 };
 
 export type PipelineEvent =
-  | { type: "channel"; channel: Channel; range?: DateRange; months: number }
+  | {
+      type: "channel";
+      channel: Channel;
+      months: number;
+      /** Comment dates. */
+      range?: DateRange;
+      videoRange?: DateRange;
+      videoCount: number;
+      maxVideos: number;
+      perVideo: number;
+    }
   | { type: "progress"; step: StepName; status: "start" | "done"; message: string }
   | { type: "card"; card: AskCard }
   | { type: "idea"; cardId: string; idea?: VideoIdea; error?: string }

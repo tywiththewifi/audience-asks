@@ -38,11 +38,11 @@ server.registerTool(
     const cards = new Map<string, AskCard>();
     const errors: string[] = [];
     let title = channel;
-    let range: DateRange | undefined;
+    let span: { comments?: DateRange; videos?: DateRange } = {};
     for await (const ev of runAudienceAsks(channel, { maxVideos: videos ?? 30, months })) {
       if (ev.type === "channel") {
         title = ev.channel.title;
-        range = ev.range;
+        span = { comments: ev.range, videos: ev.videoRange };
       }
       if (ev.type === "card") cards.set(ev.card.id, ev.card);
       if (ev.type === "idea" && cards.has(ev.cardId)) cards.get(ev.cardId)!.idea = ev.idea;
@@ -53,7 +53,7 @@ server.registerTool(
       return { isError: errors.length > 0, content: [{ type: "text", text: errors.join("\n") || "No questions or requests found in recent comments." }] };
     }
     const note = errors.length ? `\n\nSome steps had problems: ${errors.join("; ")}` : "";
-    return { content: [{ type: "text", text: toMarkdown(title, list, range) + note }] };
+    return { content: [{ type: "text", text: toMarkdown(title, list, span) + note }] };
   },
 );
 

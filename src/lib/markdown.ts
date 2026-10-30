@@ -39,7 +39,11 @@ export function cardToMarkdown(card: AskCard) {
   return lines.join("\n");
 }
 
-export function toMarkdown(channelTitle: string, cards: AskCard[], range?: DateRange) {
-  const span = range ? [`Comments from ${formatDate(range.from)} to ${formatDate(range.to)}.`, ""] : [];
-  return [`# What ${channelTitle}'s viewers are asking for`, "", ...span, ...cards.map(cardToMarkdown)].join("\n");
+export function toMarkdown(channelTitle: string, cards: AskCard[], span: { comments?: DateRange; videos?: DateRange } = {}) {
+  const parts = [
+    span.videos && `Videos posted ${formatDate(span.videos.from)} to ${formatDate(span.videos.to)}.`,
+    span.comments && `Comments posted ${formatDate(span.comments.from)} to ${formatDate(span.comments.to)}.`,
+  ].filter(Boolean);
+  const header = parts.length ? [parts.join(" "), ""] : [];
+  return [`# What ${channelTitle}'s viewers are asking for`, "", ...header, ...cards.map(cardToMarkdown)].join("\n");
 }

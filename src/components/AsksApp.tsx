@@ -2,19 +2,20 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createSSEParser } from "@/lib/sse";
-import type { AskCard, AskKind, Channel, DateRange, PipelineEvent, RunStats, StepName } from "@/lib/types";
-import { cardToMarkdown, formatDate, toMarkdown } from "@/lib/markdown";
+import type { AskCard, AskKind, Channel, PipelineEvent, RunStats, StepName } from "@/lib/types";
+import { cardToMarkdown, toMarkdown } from "@/lib/markdown";
 import { Card } from "./Card";
 import { ProgressRail, type StepState } from "./ProgressRail";
+import { RunSpan } from "./RunSpan";
 
 const EXAMPLES = ["@vidIQ", "@PeterMcKinnon", "@aliabdaal", "@NileRed"];
 const STEPS: StepName[] = ["fetch", "sort", "group", "ideas"];
 type Filter = "all" | AskKind;
 const DEFAULT_MONTHS = 12;
 const WINDOWS = [
-  { months: 6, label: "Last 6 months" },
-  { months: 12, label: "Last 12 months" },
-  { months: 0, label: "Any time" },
+  { months: 6, label: "Videos from the last 6 months" },
+  { months: 12, label: "Videos from the last 12 months" },
+  { months: 0, label: "Videos of any age" },
 ];
 
 const freshSteps = (): Record<StepName, StepState> =>
@@ -25,7 +26,7 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
   const [months, setMonths] = useState(
     WINDOWS.some((w) => w.months === initialMonths) ? (initialMonths as number) : DEFAULT_MONTHS,
   );
-  const [range, setRange] = useState<{ range?: DateRange; months: number }>();
+  const [span, setSpan] = useState<Extract<PipelineEvent, { type: "channel" }>>();
   const [running, setRunning] = useState(false);
   const [steps, setSteps] = useState(freshSteps);
   const [channel, setChannel] = useState<Channel>();
@@ -41,7 +42,7 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
     switch (ev.type) {
       case "channel":
         setChannel(ev.channel);
-        setRange({ range: ev.range, months: ev.months });
+        setSpan(ev);
         break;
       case "progress":
         setSteps((s) => ({ ...s, [ev.step]: { status: ev.status === "start" ? "active" : "done", message: ev.message } }));
@@ -72,7 +73,7 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
       setRunning(true);
       setSteps(freshSteps());
       setChannel(undefined);
-      setRange(undefined);
+      setSpan(undefined);
       setCards([]);
       setStats(undefined);
       setFatal(undefined);
@@ -123,7 +124,7 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
   }, [cards]);
 
   const exportMarkdown = () => {
-    const blob = new Blob([toMarkdown(channel?.title ?? lastRun.current, visible, range?.range)], { type: "text/markdown" });
+    const blob = new Blob([toMarkdown(channel?.title ?? lastRun.current, visible, { comments: span?.range, videos: span?.videoRange })], { type: "text/markdown" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `audience-asks-${(channel?.handle ?? "channel").replace(/^@/, "")}.md`;
@@ -195,7 +196,7 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
             id="window"
             value={months}
             onChange={(e) => setMonths(Number(e.target.value))}
-            className="h-12 rounded-full border border-line bg-panel px-4 text-sm outline-none focus:border-accent"
+            className="select h-12 rounded-full border border-line bg-panel pl-4 text-sm outline-none focus:border-accent"
           >
             {WINDOWS.map((w) => (
               <option key={w.months} value={w.months}>
@@ -257,13 +258,7 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
             </aside>
 
             <div className="min-w-0">
-              {range?.range && (
-                <p className="mb-4 text-sm text-muted">
-                  Comments from <span className="text-white">{formatDate(range.range.from)}</span> to{" "}
-                  <span className="text-white">{formatDate(range.range.to)}</span>
-                  {range.months ? `, on videos from the last ${range.months} months` : ", on the latest videos of any age"}
-                </p>
-              )}
+              {span?.videoRange && <RunSpan span={span} />}
               {cards.length > 0 && (
                 <div className="mb-5 flex flex-wrap items-center gap-2">
                   <div role="tablist" aria-label="Filter asks" className="flex flex-wrap gap-1 rounded-full border border-line bg-panel p-1">
@@ -318,7 +313,11 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
         )}
 
         <footer className="mt-20 text-xs text-muted">
-          An independent concept by Tyler (<a className="underline hover:text-white" href="https://github.com/tywiththewifi/audience-asks">source</a>). Not affiliated with vidIQ or YouTube. Comments are read
+          An independent concept by{" "}
+          <a className="underline hover:text-white" href="https://www.tywiththewifi.dev/">
+            Tyler
+          </a>{" "}
+          (<a className="underline hover:text-white" href="https://github.com/tywiththewifi/audience-asks">source</a>). Not affiliated with vidIQ or YouTube. Comments are read
           through the public YouTube Data API.
         </footer>
       </main>

@@ -40,18 +40,16 @@ export function monthsAgo(months: number, now = Date.now()) {
   return d.getTime();
 }
 
-export function dateRange(comments: Comment[]): DateRange | undefined {
-  if (!comments.length) return undefined;
-  let from = comments[0].publishedAt;
+export function dateRange(items: { publishedAt: string }[]): DateRange | undefined {
+  if (!items.length) return undefined;
+  let from = items[0].publishedAt;
   let to = from;
-  for (const c of comments) {
+  for (const c of items) {
     if (c.publishedAt < from) from = c.publishedAt;
     if (c.publishedAt > to) to = c.publishedAt;
   }
   return { from, to };
 }
-
-const shortDate = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
 
 async function fetchChannelData(input: string, maxVideos: number, perVideo: number, months: number): Promise<Fetched> {
   const quota = new Quota();
@@ -129,7 +127,17 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   stats.videos = data.videos.length;
   stats.comments = data.comments.length;
   stats.range = dateRange(data.comments);
-  yield { type: "channel", channel: data.channel, range: stats.range, months };
+  stats.videoRange = dateRange(data.videos);
+  yield {
+    type: "channel",
+    channel: data.channel,
+    months,
+    range: stats.range,
+    videoRange: stats.videoRange,
+    videoCount: data.videos.length,
+    maxVideos,
+    perVideo,
+  };
   if (!data.videos.length) {
     yield {
       type: "step_error",
@@ -142,12 +150,11 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
     yield finish();
     return;
   }
-  const span = stats.range ? ` from ${shortDate(stats.range.from)} to ${shortDate(stats.range.to)}` : "";
   yield {
     type: "progress",
     step: "fetch",
     status: "done",
-    message: `Found ${data.videos.length} recent videos and read ${data.comments.length.toLocaleString("en-US")} comments${span}`,
+    message: `Found ${data.videos.length} recent videos and read ${data.comments.length.toLocaleString("en-US")} comments`,
   };
   if (data.skippedVideos) {
     yield {

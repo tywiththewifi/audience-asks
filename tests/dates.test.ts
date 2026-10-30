@@ -30,7 +30,9 @@ describe("dateRange", () => {
 
 it("puts the range in the Markdown export", () => {
   expect(formatDate("2025-04-09T23:30:00Z")).toBe("Apr 9, 2025");
-  expect(toMarkdown("Test", [], { from: "2025-04-09T00:00:00Z", to: "2026-10-29T00:00:00Z" })).toContain(
-    "Comments from Apr 9, 2025 to Oct 29, 2026.",
-  );
+  const md = toMarkdown("Test", [], {
+    videos: { from: "2025-04-01T00:00:00Z", to: "2026-10-20T00:00:00Z" },
+    comments: { from: "2025-04-09T00:00:00Z", to: "2026-10-29T00:00:00Z" },
+  });
+  expect(md).toContain("Videos posted Apr 1, 2025 to Oct 20, 2026. Comments posted Apr 9, 2025 to Oct 29, 2026.");
 });

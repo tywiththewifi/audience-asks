@@ -82,7 +82,7 @@ Short records of the choices that shaped Audience Asks. Each one says what we pi
 
 ## D12. Only read the last 12 months by default
 
-**Decision:** skip videos published more than 12 months ago unless the user picks "Any time". Show the comment date range above the results and a date on every quoted comment.
+**Decision:** skip videos published more than 12 months ago unless the user picks "Any time". Above the results, show which videos were read and when they were posted, separately from when their comments were posted, and put a date on every quoted comment. The window picks videos, not comments, and the 30-video cap often ends sooner than the window on channels that post often, so the panel says so.
 
 **Why:** "the 30 most recent videos" can reach far back on a channel that posts rarely. For one such channel it went back 18 months, and a fifth of the comments were over a year old. Old asks may already be answered, so they shouldn't rank next to this month's. The uploads playlist runs newest first, so the cutoff also stops paging early and costs no extra quota.
 

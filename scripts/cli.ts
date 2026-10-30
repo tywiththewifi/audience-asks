@@ -37,7 +37,7 @@ for await (const ev of runAudienceAsks(channel, { maxVideos: Number(flag("videos
 }
 
 const list = [...cards.values()];
-console.log(toMarkdown(title, list, stats?.range));
+console.log(toMarkdown(title, list, { comments: stats?.range, videos: stats?.videoRange }));
 if (stats) console.error(`\n${stats.comments} comments, ${stats.quotaUnits} quota units, $${stats.costUsd.toFixed(3)}, ${(stats.ms / 1000).toFixed(1)}s`);
 const out = flag("json");
 if (out) await writeFile(out, JSON.stringify({ channel: title, cards: list, stats }, null, 2));
