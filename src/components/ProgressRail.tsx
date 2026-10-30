@@ -7,6 +7,7 @@ const LABELS: Record<StepName, string> = {
   sort: "Sort questions and requests",
   group: "Group into topics",
   ideas: "Write video ideas",
+  coverage: "Check past videos for answers",
 };
 
 export function ProgressRail({ steps, onRetry, running }: { steps: Record<StepName, StepState>; onRetry: () => void; running: boolean }) {

@@ -84,6 +84,9 @@ export async function groupAsks(
     schema: GroupSchema,
     effort: "medium",
     maxTokens: 32000,
+    // The one long call. Retrying it would run past the route's 5-minute limit, so a stall surfaces as a retryable error.
+    timeoutMs: 200_000,
+    maxRetries: 0,
     meter,
   });
 
@@ -111,6 +114,8 @@ export async function groupAsks(
         schema: GroupSchema,
         effort: "medium",
         maxTokens: 16000,
+        timeoutMs: 120_000,
+        maxRetries: 0,
         meter,
       });
       const second = groundTopics(fix.topics as RawTopic[], refs);

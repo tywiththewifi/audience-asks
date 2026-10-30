@@ -1,4 +1,4 @@
-import type { AskCard, DateRange } from "./types";
+import type { AskCard, ChannelHealth, DateRange } from "./types";
 import { commentUrl } from "./youtube";
 
 export const formatDate = (iso: string) =>
@@ -13,6 +13,13 @@ export function cardToMarkdown(card: AskCard) {
     card.summary,
     "",
   ];
+  if (card.answeredBy) {
+    const a = card.answeredBy;
+    lines.push(
+      `${a.level === "answers" ? "Already answered in" : "Partly covered in"} [${a.title}](https://www.youtube.com/watch?v=${a.videoId}) (${formatDate(a.publishedAt)}).`,
+      "",
+    );
+  }
   for (const p of card.proof) lines.push(`> "${p.quote}" — ${p.comment.author}, ${formatDate(p.comment.publishedAt)} ([on "${p.comment.videoTitle}"](${commentUrl(p.comment)}))`, "");
   if (card.idea) {
     lines.push(
@@ -39,11 +46,34 @@ export function cardToMarkdown(card: AskCard) {
   return lines.join("\n");
 }
 
-export function toMarkdown(channelTitle: string, cards: AskCard[], span: { comments?: DateRange; videos?: DateRange } = {}) {
+export function healthToMarkdown(health: ChannelHealth, cards: AskCard[]) {
+  const { praise, complaint } = health.sentiment;
+  const answered = cards.filter((c) => c.answeredBy?.level === "answers").length;
+  const lines = ["## Channel health", ""];
+  if (cards.some((c) => c.answeredBy)) lines.push(`- Asks already answered by a past video: ${answered} of ${cards.length}`);
+  if (praise + complaint) lines.push(`- Praise vs complaints: ${Math.round((praise / (praise + complaint)) * 100)}% praise (${praise} praise, ${complaint} complaints)`);
+  for (const o of health.outliers.videos.slice(0, 3)) {
+    lines.push(`- Outlier: [${o.title}](https://www.youtube.com/watch?v=${o.id}), ${o.multiple}× typical views${o.topAsk ? `. Top ask: ${o.topAsk}` : ""}`);
+  }
+  return [...lines, ""].join("\n");
+}
+
+export function toMarkdown(
+  channelTitle: string,
+  cards: AskCard[],
+  span: { comments?: DateRange; videos?: DateRange } = {},
+  health?: ChannelHealth,
+) {
   const parts = [
     span.videos && `Videos posted ${formatDate(span.videos.from)} to ${formatDate(span.videos.to)}.`,
     span.comments && `Comments posted ${formatDate(span.comments.from)} to ${formatDate(span.comments.to)}.`,
   ].filter(Boolean);
   const header = parts.length ? [parts.join(" "), ""] : [];
-  return [`# What ${channelTitle}'s viewers are asking for`, "", ...header, ...cards.map(cardToMarkdown)].join("\n");
+  return [
+    `# What ${channelTitle}'s viewers are asking for`,
+    "",
+    ...header,
+    ...(health ? [healthToMarkdown(health, cards)] : []),
+    ...cards.map(cardToMarkdown),
+  ].join("\n");
 }

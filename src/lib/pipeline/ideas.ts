@@ -30,7 +30,9 @@ export async function writeIdea(
   const out = await structured({
     model: MODELS.ideas,
     system: IDEAS_SYSTEM,
-    user: `Channel: ${context.channelTitle}
+    // The date keeps titles from naming last year ("…in 2025").
+    user: `Today is ${new Date().toISOString().slice(0, 10)}.
+Channel: ${context.channelTitle}
 Recent titles:
 ${context.recentTitles.slice(0, 12).map((t) => `- ${t}`).join("\n")}
 

@@ -15,6 +15,7 @@ export type Video = {
   title: string;
   publishedAt: string;
   thumbnail?: string;
+  views?: number;
 };
 
 export type Channel = {
@@ -98,12 +99,35 @@ export type AskCard = {
   idea?: VideoIdea;
   ideaError?: string;
   check?: IdeaCheck;
+  answeredBy?: CatalogMatch;
 };
 
 /** Oldest and newest comment dates (ISO) in a run. */
 export type DateRange = { from: string; to: string };
 
-export type StepName = "fetch" | "sort" | "group" | "ideas";
+export type StepName = "fetch" | "sort" | "group" | "ideas" | "coverage";
+
+/** A video from the channel's own back catalogue that already answers an ask. */
+export type CatalogMatch = { videoId: string; title: string; publishedAt: string; level: "answers" | "partly" };
+
+export type VideoSentiment = { id: string; title: string; publishedAt: string; praise: number; complaint: number; comments: number };
+
+export type Outlier = {
+  id: string;
+  title: string;
+  publishedAt: string;
+  views: number;
+  /** Views as a multiple of the median video read. */
+  multiple: number;
+  asks: number;
+  topAsk?: string;
+};
+
+/** Signals beyond views: how viewers feel, which videos break out, and whether the channel is already the answer. */
+export type ChannelHealth = {
+  sentiment: { praise: number; complaint: number; perVideo: VideoSentiment[] };
+  outliers: { medianViews?: number; videos: Outlier[] };
+};
 
 export type RunStats = {
   videos: number;
@@ -139,5 +163,7 @@ export type PipelineEvent =
   | { type: "progress"; step: StepName; status: "start" | "done"; message: string }
   | { type: "card"; card: AskCard }
   | { type: "idea"; cardId: string; idea?: VideoIdea; error?: string }
+  | { type: "health"; health: ChannelHealth }
+  | { type: "coverage"; matches: { cardId: string; match: CatalogMatch }[]; catalogSize: number; checked: number }
   | { type: "step_error"; step: StepName; message: string; retryable: boolean }
   | { type: "done"; stats: RunStats };

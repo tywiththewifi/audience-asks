@@ -225,6 +225,16 @@ type VideosResponse = {
   }[];
 };
 
+/** views, length and thumbnail for up to any number of videos, 1 unit per 50. */
+export async function getVideoDetails(ids: string[], quota: Quota) {
+  const byId = new Map<string, NonNullable<VideosResponse["items"]>[number]>();
+  for (let i = 0; i < ids.length; i += 50) {
+    const data = await get<VideosResponse>("videos", { part: "snippet,statistics,contentDetails", id: ids.slice(i, i + 50).join(",") }, quota);
+    for (const v of data.items ?? []) byId.set(v.id, v);
+  }
+  return byId;
+}
+
 /** "PT1H2M3S" to seconds. */
 export function durationSeconds(iso: string | undefined) {
   const m = iso?.match(/^P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
@@ -246,12 +256,10 @@ export async function searchVideos(q: string, max: number, quota: Quota): Promis
   );
   const hits = (found.items ?? []).filter((i) => i.id.videoId);
   if (!hits.length) return [];
-  const details = await get<VideosResponse>(
-    "videos",
-    { part: "snippet,statistics,contentDetails", id: hits.map((h) => h.id.videoId).join(",") },
+  const byId = await getVideoDetails(
+    hits.map((h) => h.id.videoId!),
     quota,
   );
-  const byId = new Map((details.items ?? []).map((v) => [v.id, v]));
   return hits.map((h) => {
     const d = byId.get(h.id.videoId!);
     return {

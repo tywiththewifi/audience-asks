@@ -6,7 +6,7 @@ Short records of the choices that shaped Audience Asks. Each one says what we pi
 
 **Decision:** find a channel's videos through its uploads playlist (`channels.list` → `playlistItems.list`), never through `search.list`. (The one place search is worth its price is the "already on YouTube?" check, which runs only when asked; see D13.)
 
-**Why:** `search.list` costs 100 quota units a call. The uploads playlist costs 1 unit per 50 videos. A full channel read is about 32 units instead of 130+, so the free 10,000-unit quota covers roughly 300 channels a day instead of about 75.
+**Why:** `search.list` costs 100 quota units a call. The uploads playlist costs 1 unit per 50 videos. A full channel read is about 36 units instead of 130+, so the free 10,000-unit quota covers roughly 270 channels a day instead of about 75.
 
 **Trade-off:** we only see the latest uploads, not "most popular ever". For "what do viewers want *now*", recent is what we want anyway.
 
@@ -103,4 +103,18 @@ Short records of the choices that shaped Audience Asks. Each one says what we pi
 **Why:** this is a concept for vidIQ, so it should look like it could ship inside vidIQ. It keeps its own name and mark and says it isn't affiliated.
 
 **Trade-off:** Satoshi is loaded from Fontshare's API rather than committed, because its license (ITF FFL) allows self-hosting but not publishing the font files in a public repository.
+
+## D15. Channel health: signals beyond views
+
+**Decision:** above the asks, a panel shows three things views and subscriber counts can't: how many of the top asks a past video already answers, the balance of praise and complaints on each video, and which videos got 2× or more the channel's typical views, with the ask each one drew most.
+
+**Why:** a channel can grow its numbers without becoming more useful or more trusted. The comment labels from the sort step already measure praise and complaints, so sentiment costs nothing extra. Outliers need view counts (1 quota unit for 50 videos). "Already answered" is the closest measure of whether a channel is becoming the resource its viewers come to: one Claude Haiku 5.5 call matches the ranked asks to the titles of the latest 200 uploads, read in the same playlist pass as the videos (4 units). The model only sees refs (`a1`, `v12`), code drops any it wasn't given, and a match doesn't count when most of the people asking were watching that very video, since it plainly didn't answer them.
+
+**Trade-off:** matching on titles misses answers buried inside a video, so "answered" is an undercount and "open" can be too generous; reading transcripts would fix that at a much higher cost. "Typical views" is the median of the videos read, not the whole channel. Sentiment uses the sort step's labels, so it inherits that step's accuracy (see EVALS.md), and complaints include complaints about the subject, not only about the channel.
+
+## D16. Every model call has a deadline
+
+**Decision:** each Claude call has an overall time limit (90 seconds by default, 200 for grouping, 40 for the YouTube check), retries included. When it passes, the call fails with a retryable error.
+
+**Why:** the SDK's timeout only covers the wait for response headers, so a stream that stalls midway could hold a whole run open. With a deadline, a stalled sort batch becomes one failed batch, a stalled idea becomes one card with a retry, and nothing hangs.
 

@@ -50,6 +50,23 @@ export function Card({
         </button>
         {card.likeCount > 0 && <> · {card.likeCount.toLocaleString("en-US")} likes on those comments</>}
       </p>
+      {card.answeredBy && (
+        <p className="mt-2 text-sm">
+          <span className={card.answeredBy.level === "answers" ? "text-strong" : "text-some"} aria-hidden>
+            {card.answeredBy.level === "answers" ? "✓ " : "◐ "}
+          </span>
+          <span className="text-muted">{card.answeredBy.level === "answers" ? "Already answered in " : "Partly covered in "}</span>
+          <a
+            className="underline decoration-line underline-offset-4 hover:decoration-accent"
+            href={`https://www.youtube.com/watch?v=${card.answeredBy.videoId}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            “{card.answeredBy.title}”
+          </a>
+          <span className="text-muted"> ({formatDate(card.answeredBy.publishedAt)}). Point viewers there.</span>
+        </p>
+      )}
       {showVideos && (
         <ul className="mt-2 space-y-1 text-sm text-muted">
           {card.videos.map((v) => (

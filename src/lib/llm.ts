@@ -61,25 +61,39 @@ export async function structured<S extends z.ZodType>(opts: {
   effort: Effort;
   maxTokens?: number;
   meter: Meter;
+  /**
+   * The whole call, retries included, gives up after this long with a retryable error, so a stalled stream
+   * can't hold the run. (The SDK's own timeout only covers the wait for response headers.)
+   */
+  timeoutMs?: number;
+  maxRetries?: number;
 }): Promise<z.infer<S>> {
   const client = getClient();
+  const deadline = new AbortController();
+  const timer = setTimeout(() => deadline.abort(), opts.timeoutMs ?? 90_000);
   let response;
   try {
     // Streamed so long grouping calls don't hit the SDK's non-streaming time limit.
-    const stream = client.messages.stream({
-      model: opts.model,
-      max_tokens: opts.maxTokens ?? 16000,
-      system: opts.system,
-      messages: [{ role: "user", content: opts.user }],
-      output_config: { effort: opts.effort, format: zodOutputFormat(opts.schema) },
-    });
+    const stream = client.messages.stream(
+      {
+        model: opts.model,
+        max_tokens: opts.maxTokens ?? 16000,
+        system: opts.system,
+        messages: [{ role: "user", content: opts.user }],
+        output_config: { effort: opts.effort, format: zodOutputFormat(opts.schema) },
+      },
+      { signal: deadline.signal, maxRetries: opts.maxRetries ?? 2 },
+    );
     response = await stream.finalMessage();
   } catch (err) {
+    if (deadline.signal.aborted) throw new LLMError("The model took too long to answer. Try again.", true);
     if (err instanceof Anthropic.AuthenticationError) throw new LLMError("The Anthropic API key is missing or invalid.", false);
     if (err instanceof Anthropic.RateLimitError) throw new LLMError("Rate limited by the Anthropic API. Try again in a minute.", true);
     if (err instanceof Anthropic.BadRequestError) throw new LLMError(`The model rejected the request: ${err.message}`, false);
     if (err instanceof Anthropic.APIError) throw new LLMError(`Anthropic API error: ${err.message}`, true);
     throw err;
+  } finally {
+    clearTimeout(timer);
   }
 
   opts.meter.add(opts.model, response.usage);

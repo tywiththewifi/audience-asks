@@ -17,6 +17,9 @@
   --color-some: #f5b544;
   --color-crowded: #ff6b7a;
   --color-thin: #a2a7b8;
+  /* Diverging pair for praise vs complaints, validated for CVD separation on the card surface. */
+  --color-praise: #3d86f7;
+  --color-complaint: #e35d4a;
 }
 
 html {

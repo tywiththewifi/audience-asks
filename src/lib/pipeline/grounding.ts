@@ -15,6 +15,15 @@ export type GroundedTopic = Omit<RawTopic, "comment_refs" | "quotes"> & {
 
 export type TopicProblem = { topic: RawTopic; problems: string[] };
 
+/**
+ * The number in a ref like "v12". Models sometimes echo the whole line ("v12. Some title"), so this
+ * reads only the leading ref. Anything else is undefined, and callers drop it.
+ */
+export function refNumber(ref: string, prefix: string): number | undefined {
+  const m = ref.trim().match(new RegExp(`^${prefix}(\\d+)(?![\\d])`, "i"));
+  return m ? Number(m[1]) : undefined;
+}
+
 export function normalize(s: string) {
   return s
     .normalize("NFKC")

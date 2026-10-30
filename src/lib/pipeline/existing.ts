@@ -3,11 +3,12 @@ import { TTL, cacheKey, cached } from "../cache";
 import { MODELS, Meter, structured } from "../llm";
 import type { CheckVerdict, ExistingVideo, IdeaCheck, SearchResult } from "../types";
 import { Quota, searchVideos } from "../youtube";
+import { refNumber } from "./grounding";
 
 export const CHECK_RESULTS = 10;
 
 const JudgeSchema = z.object({
-  results: z.array(z.object({ ref: z.string(), match: z.enum(["same", "close", "different"]) })),
+  results: z.array(z.object({ ref: z.string().describe("The result's ref only, like r4"), match: z.enum(["same", "close", "different"]) })),
   summary: z.string(),
   angle: z.string(),
 });
@@ -47,13 +48,13 @@ export function pickMatches(
   ratings: { ref: string; match: "same" | "close" | "different" }[],
   channelId?: string,
 ): ExistingVideo[] {
-  const byRef = new Map(results.map((r, i) => [`r${i + 1}`, r]));
-  const seen = new Set<string>();
+  const seen = new Set<number>();
   const out: ExistingVideo[] = [];
   for (const { ref, match } of ratings) {
-    const r = byRef.get(ref);
-    if (!r || match === "different" || seen.has(ref)) continue;
-    seen.add(ref);
+    const n = refNumber(ref, "r");
+    const r = n ? results[n - 1] : undefined;
+    if (!n || !r || match === "different" || seen.has(n)) continue;
+    seen.add(n);
     out.push({ ...r, match, ownChannel: !!channelId && r.channelId === channelId });
   }
   return out.sort((a, b) => (a.match === b.match ? (b.views ?? 0) - (a.views ?? 0) : a.match === "same" ? -1 : 1));
@@ -103,6 +104,7 @@ ${list}`,
           effort: "low",
           maxTokens: 3000,
           meter,
+          timeoutMs: 40_000,
         }),
     );
     judgeHit = judged.hit;

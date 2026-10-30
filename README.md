@@ -4,7 +4,7 @@
 
 **Try it:** [audience-asks.vercel.app](https://audience-asks.vercel.app)
 
-![Audience Asks on vidIQ's channel: the progress rail, filters and the top-ranked ask with its quoted comments](docs/screenshot.png)
+![Audience Asks on vidIQ's channel: the progress rail, which videos and comments were read, and the Channel health panel](docs/screenshot.png)
 
 
 ## What it does
@@ -13,10 +13,11 @@
 2. **Sorts** every comment as a question, request, complaint, praise, other or spam (Claude Haiku 5.5, in parallel batches).
 3. **Groups** the questions, requests and complaints into topics, each citing the comments it came from (Claude Opus 5.5). Code checks every citation and quote; anything that doesn't check out is retried once, then dropped.
 4. **Writes a video idea** per topic: two titles in the channel's style, a hook and why it should work.
-5. **Checks whether that video already exists**, on request: it searches YouTube for the idea, rates which top results already make it (Claude Haiku 5.5), and says whether the idea is open, has a few takers, is crowded, or is one the channel already made, with links, views and age, and how to stand out.
-6. Streams it all to the page as it happens, so cards appear while ideas are still being written.
+5. **Shows channel health beyond views**: how many top asks a past video already answers (and which video to point viewers to), praise vs complaints on each video, and outlier videos with what viewers asked on them.
+6. **Checks whether that video already exists**, on request: it searches YouTube for the idea, rates which top results already make it (Claude Haiku 5.5), and says whether the idea is open, has a few takers, is crowded, or is one the channel already made, with links, views and age, and how to stand out.
+7. Streams it all to the page as it happens, so cards appear while ideas are still being written.
 
-Filters for questions, requests, complaints and "asked in the last 30 days"; export to Markdown or copy one idea. It works on any public channel with no sign-in.
+Filters for questions, requests, complaints, "asked in the last 30 days" and "no video yet"; export to Markdown or copy one idea. It works on any public channel with no sign-in.
 
 ## Run it
 
