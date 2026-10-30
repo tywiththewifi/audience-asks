@@ -62,3 +62,12 @@ export function buildCard(topic: GroundedTopic, byId: Map<string, Comment>, now 
 export function rankCards(cards: AskCard[]) {
   return [...cards].sort((a, b) => b.viewerCount - a.viewerCount || b.likeCount - a.likeCount);
 }
+
+/** The final ranked list, keeping what already arrived for each card: its idea, YouTube check and past-video match. */
+export function withEarlierState(final: AskCard[], earlier: AskCard[]) {
+  const byId = new Map(earlier.map((c) => [c.id, c]));
+  return final.map((c) => {
+    const e = byId.get(c.id);
+    return e ? { ...c, idea: e.idea, ideaError: e.ideaError, check: e.check, answeredBy: e.answeredBy } : c;
+  });
+}

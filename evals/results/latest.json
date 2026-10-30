@@ -1,14 +1,14 @@
 {
-  "at": "2026-10-29T16:07:28.181Z",
+  "at": "2026-10-30T17:04:52.415Z",
   "rows": [
     {
       "fixture": "vidiq",
       "comments": 457,
       "sortedComments": 423,
-      "asks": 124,
+      "asks": 125,
       "labelled": 40,
-      "sortAccuracy": 0.825,
-      "askPrecision": 0.6923076923076923,
+      "sortAccuracy": 0.875,
+      "askPrecision": 0.75,
       "askRecall": 1,
       "confusions": [
         {
@@ -22,12 +22,6 @@
           "gold": "other",
           "got": "complaint",
           "text": "Just started a channel with a lot of hope - Thank you so much for letting me know i don’t belong anywhere on this planet"
-        },
-        {
-          "id": "Ugx16vBHCq3pRuEDBJ94AaABAg",
-          "gold": "other",
-          "got": "complaint",
-          "text": "Sucks that I can't monetize my channel but I kinda get it. Monetization is only a dream that I may get my hands on one day."
         },
         {
           "id": "UgzmzX5XCcgajPhWThZ4AaABAg",
@@ -46,35 +40,29 @@
           "gold": "request",
           "got": "question",
           "text": "Would be interesting to see how many stopped watching as from the UK have"
-        },
-        {
-          "id": "UgycYs9tMTgkt7Jh5qh4AaABAg",
-          "gold": "praise",
-          "got": "other",
-          "text": "I'm pretty lucky. I hit monitization in 42 days. Binging your videos & actually applying the tips was super helpful! My new goal is 10k subs by February 1st."
         }
       ],
-      "topicsFirstPass": 11,
+      "topicsFirstPass": 14,
       "invalidTopicsFirstPass": 0,
       "citedRefsRealFirstPass": 1,
       "quotesExactFirstPass": 1,
       "topicsDropped": 0,
       "duplicatesMerged": 0,
       "nearDuplicatePairsLeft": 0,
-      "finalCards": 11,
+      "finalCards": 14,
       "finalCitationsReal": 1,
-      "costUsd": 0.1165737,
-      "sortSeconds": 5.907,
-      "totalSeconds": 33.968
+      "costUsd": 0.2422842,
+      "sortSeconds": 4.588,
+      "totalSeconds": 16.27
     },
     {
       "fixture": "petermckinnon",
       "comments": 775,
       "sortedComments": 760,
-      "asks": 142,
+      "asks": 140,
       "labelled": 40,
       "sortAccuracy": 0.875,
-      "askPrecision": 0.8,
+      "askPrecision": 1,
       "askRecall": 1,
       "confusions": [
         {
@@ -82,12 +70,6 @@
           "gold": "praise",
           "got": "other",
           "text": "I’m here for all the journal content! 👏"
-        },
-        {
-          "id": "Ugyt6-UCJzY8N4242814AaABAg",
-          "gold": "praise",
-          "got": "request",
-          "text": "I love these topics! I want a dip pen and ink now. I have always enjoyed your photography videos, even though I'm not a photographer. But these recent videos ab"
         },
         {
           "id": "UgxAE5dmI1bo6iWQg6V4AaABAg",
@@ -102,30 +84,36 @@
           "text": "Amazing, cool to see how far phones have come with their camera capabilities!"
         },
         {
+          "id": "UgxLaZblZGc5gKxT40F4AaABAg",
+          "gold": "praise",
+          "got": "other",
+          "text": "My newest favourite series! I recently got my first Field Guides (Found a reseller in New Zealand!) thanks to you! And I have been having a blast filling them i"
+        },
+        {
           "id": "UgyhRDnjnJPxfec0RXF4AaABAg",
           "gold": "praise",
           "got": "other",
           "text": "pete's channel is now my algorithm all in one love it"
         }
       ],
-      "topicsFirstPass": 20,
+      "topicsFirstPass": 17,
       "invalidTopicsFirstPass": 0,
       "citedRefsRealFirstPass": 1,
       "quotesExactFirstPass": 1,
       "topicsDropped": 0,
       "duplicatesMerged": 0,
-      "nearDuplicatePairsLeft": 1,
-      "finalCards": 20,
+      "nearDuplicatePairsLeft": 0,
+      "finalCards": 17,
       "finalCitationsReal": 1,
-      "costUsd": 0.151745,
-      "sortSeconds": 13.238,
-      "totalSeconds": 53.724
+      "costUsd": 0.265376,
+      "sortSeconds": 14.267,
+      "totalSeconds": 28.253
     },
     {
       "fixture": "nilered",
       "comments": 1000,
       "sortedComments": 1000,
-      "asks": 60,
+      "asks": 65,
       "labelled": 40,
       "sortAccuracy": 0.975,
       "askPrecision": null,
@@ -138,29 +126,35 @@
           "text": "Singlehandedly raising the next generation of scientists"
         }
       ],
-      "topicsFirstPass": 15,
+      "topicsFirstPass": 14,
       "invalidTopicsFirstPass": 0,
       "citedRefsRealFirstPass": 1,
       "quotesExactFirstPass": 1,
       "topicsDropped": 0,
       "duplicatesMerged": 0,
       "nearDuplicatePairsLeft": 0,
-      "finalCards": 15,
+      "finalCards": 14,
       "finalCitationsReal": 1,
-      "costUsd": 0.0888149,
-      "sortSeconds": 15.017,
-      "totalSeconds": 46.073
+      "costUsd": 0.1975369,
+      "sortSeconds": 15.887,
+      "totalSeconds": 27.598
     },
     {
       "fixture": "aliabdaal",
       "comments": 160,
       "sortedComments": 154,
-      "asks": 47,
+      "asks": 49,
       "labelled": 40,
-      "sortAccuracy": 0.85,
-      "askPrecision": 0.6875,
-      "askRecall": 1,
+      "sortAccuracy": 0.825,
+      "askPrecision": 0.7142857142857143,
+      "askRecall": 0.9090909090909091,
       "confusions": [
+        {
+          "id": "UgywtTcdY4zA-M5Jfth4AaABAg",
+          "gold": "complaint",
+          "got": "other",
+          "text": "The “tedious work” that AI outsources is what builds fundamentals for future skill sets. This is not worth the environmental impact."
+        },
         {
           "id": "UgwFyXHcXHEDZBSWrsR4AaABAg",
           "gold": "other",
@@ -174,15 +168,9 @@
           "text": "Guys is running opus on medium and expecting good results"
         },
         {
-          "id": "UgxWb-yFPl8fhzPQbq14AaABAg",
-          "gold": "other",
-          "got": "complaint",
-          "text": "Its probably great for training speaking but not sure if its like just vomiting bullshit for a history test"
-        },
-        {
           "id": "UgwIGdg9ouGuIFHr6pF4AaABAg",
           "gold": "other",
-          "got": "complaint",
+          "got": "request",
           "text": "You should try using Opus with extra effort. It might take a little longer, but the results will likely be much better. Also, your prompt is a bit too generic, "
         },
         {
@@ -192,24 +180,30 @@
           "text": "is this..... is this really you Ali or an AI?"
         },
         {
+          "id": "UgziuNPFCcwnro8Ql014AaABAg",
+          "gold": "question",
+          "got": "complaint",
+          "text": "You talked about price but never about value. Did your clients get more value? Any example of your successful client? Any example of an unsuccessful client?\n\nAd"
+        },
+        {
           "id": "Ugzj2gdB_9ITQWwc0qR4AaABAg",
           "gold": "praise",
           "got": "other",
           "text": "> \"This really was a very interesting experiment! Thank you for showing the difference between human creativity and AI speed. Even if video editors won't comple"
         }
       ],
-      "topicsFirstPass": 7,
+      "topicsFirstPass": 6,
       "invalidTopicsFirstPass": 0,
       "citedRefsRealFirstPass": 1,
       "quotesExactFirstPass": 1,
       "topicsDropped": 0,
       "duplicatesMerged": 0,
       "nearDuplicatePairsLeft": 0,
-      "finalCards": 7,
+      "finalCards": 6,
       "finalCitationsReal": 1,
-      "costUsd": 0.0621421,
-      "sortSeconds": 10.185,
-      "totalSeconds": 33.117
+      "costUsd": 0.1058636,
+      "sortSeconds": 8.843,
+      "totalSeconds": 14.916
     },
     {
       "fixture": "joshuaweissman",
@@ -217,10 +211,16 @@
       "sortedComments": 993,
       "asks": 209,
       "labelled": 40,
-      "sortAccuracy": 0.95,
-      "askPrecision": 0.8,
+      "sortAccuracy": 0.925,
+      "askPrecision": 0.6666666666666666,
       "askRecall": 1,
       "confusions": [
+        {
+          "id": "UgybPB0jXE4VLypPeF94AaABAg",
+          "gold": "other",
+          "got": "complaint",
+          "text": "11:30 is honestly crazy. 11:00 is pushing it, but that's a whole hour after I'd call safe to open."
+        },
         {
           "id": "Ugxm9LWCuO6ikVJUiuB4AaABAg",
           "gold": "other",
@@ -243,9 +243,9 @@
       "nearDuplicatePairsLeft": 0,
       "finalCards": 20,
       "finalCitationsReal": 1,
-      "costUsd": 0.1529333,
-      "sortSeconds": 14.884,
-      "totalSeconds": 45.342
+      "costUsd": 0.33518380000000003,
+      "sortSeconds": 15.884,
+      "totalSeconds": 31.103
     }
   ]
 }

@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
+import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import type { z } from "zod";
 
 export const MODELS = {
@@ -28,13 +29,15 @@ export class Meter {
   outputTokens = 0;
   calls = 0;
 
-  add(model: string, usage: { input_tokens: number; output_tokens: number; cache_read_input_tokens?: number | null }) {
+  add(model: string, usage: { input_tokens: number; output_tokens: number; cache_read_input_tokens?: number | null; speed?: string | null }) {
     const [inp, out] = PRICES[model] ?? [4, 20];
     const cacheRead = usage.cache_read_input_tokens ?? 0;
+    // Fast mode bills twice the standard rate.
+    const speed = usage.speed === "fast" ? 2 : 1;
     this.calls += 1;
     this.inputTokens += usage.input_tokens + cacheRead;
     this.outputTokens += usage.output_tokens;
-    this.costUsd += (usage.input_tokens * inp + cacheRead * inp * 0.1 + usage.output_tokens * out) / 1_000_000;
+    this.costUsd += (speed * (usage.input_tokens * inp + cacheRead * inp * 0.1 + usage.output_tokens * out)) / 1_000_000;
   }
 }
 
@@ -67,24 +70,57 @@ export async function structured<S extends z.ZodType>(opts: {
    */
   timeoutMs?: number;
   maxRetries?: number;
+  /** Gets the answer's JSON text as it streams in, so callers can use the first items early. */
+  onText?: (delta: string) => void;
+  /**
+   * Fast mode: the same model writes about 2.5 times faster, at twice the price (Opus only, Claude API only).
+   * It has its own rate limit, so a fast request that fails before writing anything runs once more at standard speed.
+   */
+  fast?: boolean;
 }): Promise<z.infer<S>> {
   const client = getClient();
   const deadline = new AbortController();
   const timer = setTimeout(() => deadline.abort(), opts.timeoutMs ?? 90_000);
+  const body = {
+    model: opts.model,
+    max_tokens: opts.maxTokens ?? 16000,
+    system: opts.system,
+    messages: [{ role: "user" as const, content: opts.user }],
+  };
+  const options = { signal: deadline.signal, maxRetries: opts.maxRetries ?? 2 };
+  let wrote = false;
+  const onText = (delta: string) => {
+    wrote = true;
+    opts.onText?.(delta);
+  };
+  // Streamed so long grouping calls don't hit the SDK's non-streaming time limit.
+  const send = (fast: boolean) => {
+    if (fast) {
+      const stream = client.beta.messages.stream(
+        {
+          ...body,
+          betas: ["fast-mode-2026-02-01"],
+          speed: "fast",
+          output_config: { effort: opts.effort, format: betaZodOutputFormat(opts.schema) },
+        },
+        options,
+      );
+      stream.on("text", onText);
+      return stream.finalMessage();
+    }
+    const stream = client.messages.stream({ ...body, output_config: { effort: opts.effort, format: zodOutputFormat(opts.schema) } }, options);
+    stream.on("text", onText);
+    return stream.finalMessage();
+  };
   let response;
   try {
-    // Streamed so long grouping calls don't hit the SDK's non-streaming time limit.
-    const stream = client.messages.stream(
-      {
-        model: opts.model,
-        max_tokens: opts.maxTokens ?? 16000,
-        system: opts.system,
-        messages: [{ role: "user", content: opts.user }],
-        output_config: { effort: opts.effort, format: zodOutputFormat(opts.schema) },
-      },
-      { signal: deadline.signal, maxRetries: opts.maxRetries ?? 2 },
-    );
-    response = await stream.finalMessage();
+    try {
+      response = await send(Boolean(opts.fast));
+    } catch (err) {
+      if (!opts.fast || wrote || deadline.signal.aborted || err instanceof Anthropic.AuthenticationError) throw err;
+      console.warn(`Fast mode failed (${(err as Error).message}), so this call runs at standard speed.`);
+      response = await send(false);
+    }
   } catch (err) {
     if (deadline.signal.aborted) throw new LLMError("The model took too long to answer. Try again.", true);
     if (err instanceof Anthropic.AuthenticationError) throw new LLMError("The Anthropic API key is missing or invalid.", false);

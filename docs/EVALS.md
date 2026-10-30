@@ -53,9 +53,21 @@ Results go to `evals/results/latest.json` and `evals/results/latest.md`. In CI t
 
 ## Results
 
-Two runs on 29 October 2026, on the same five snapshots. Claude Haiku 5.5 sorts; Claude Opus 5.5 groups. A full run of all five channels costs about $0.57.
+Three runs on the same five snapshots, two on 29 October 2026 and one on 30 October. Claude Haiku 5.5 sorts; Claude Opus 5.5 groups, in fast mode since run 3. A full run of all five channels now costs about $1.15.
 
-### Run 2 (current): after widening the complaint definition
+### Run 3 (current): grouping in fast mode
+
+| Channel | Comments | Sort accuracy | Ask precision / recall | Real citations (1st pass) | Exact quotes (1st pass) | Topics dropped | Dupes merged / left | Cards | Real citations (final) | Cost | Time |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| vidiq | 457 | 88% (n=40) | 75% / 100% | 100% | 100% | 0 | 0 / 0 | 14 | 100% | $0.242 | 16s |
+| petermckinnon | 775 | 88% (n=40) | 100% / 100% | 100% | 100% | 0 | 0 / 0 | 17 | 100% | $0.265 | 28s |
+| nilered | 1000 | 98% (n=40) | n/a / n/a | 100% | 100% | 0 | 0 / 0 | 14 | 100% | $0.198 | 28s |
+| aliabdaal | 160 | 83% (n=40) | 71% / 91% | 100% | 100% | 0 | 0 / 0 | 6 | 100% | $0.106 | 15s |
+| joshuaweissman | 1000 | 93% (n=40) | 67% / 100% | 100% | 100% | 0 | 0 / 0 | 20 | 100% | $0.335 | 31s |
+
+The CI gate passes. Grouping took 6–15 seconds per channel instead of 23–40, for about twice the cost. Citations and quotes were still all right on the first pass, nothing was dropped or merged, and topic counts moved by about as much as they do between any two runs (three fewer on petermckinnon, three more on vidiq). The sort step didn't change, so its numbers differ from run 2 only by run-to-run noise. See DECISIONS.md, D17.
+
+### Run 2: after widening the complaint definition
 
 | Channel | Comments | Sort accuracy | Ask precision / recall | Real citations (1st pass) | Exact quotes (1st pass) | Topics dropped | Dupes merged / left | Cards | Real citations (final) | Cost | Time |
 |---|---|---|---|---|---|---|---|---|---|---|---|

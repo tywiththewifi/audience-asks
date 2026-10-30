@@ -1,10 +1,14 @@
 import { z } from "zod";
 import type { Comment } from "../types";
+import { createArrayItemParser } from "../json-stream";
 import { LLMError, MODELS, type Meter, structured } from "../llm";
 import { type GroundedTopic, type RawTopic, groundTopics, mergeDuplicates, quoteIsInComment } from "./grounding";
 
 /** Upper bound on comments sent to the grouping step. Above it we keep the most-liked ones. */
 export const GROUP_MAX_COMMENTS = 1500;
+
+/** The grouping call runs in fast mode: about 2.5 times faster for twice the price (D17). GROUP_SPEED=standard turns it off. */
+const FAST = process.env.GROUP_SPEED !== "standard";
 
 const TopicSchema = z.object({
   ask: z.string(),
@@ -70,12 +74,28 @@ export async function groupAsks(
   asks: Comment[],
   meter: Meter,
   context: { channelTitle: string },
+  /** Gets each topic that passes the citation check as soon as the model has written it, before the rest arrive. */
+  onTopic?: (topic: GroundedTopic) => void,
 ): Promise<GroupResult> {
   const chosen =
     asks.length > GROUP_MAX_COMMENTS ? [...asks].sort((a, b) => b.likeCount - a.likeCount).slice(0, GROUP_MAX_COMMENTS) : asks;
   const refs = new Map(chosen.map((c, i) => [`c${i}`, c]));
   const input = formatGroupInput(chosen);
   const user = `Channel: ${context.channelTitle}\n${chosen.length} comments:\n\n${input}`;
+  // Runs the same check as below on each topic while the answer streams in. Topics that fail it wait for the retry.
+  const handOver = () =>
+    onTopic &&
+    createArrayItemParser((json) => {
+      let raw: unknown;
+      try {
+        raw = JSON.parse(json);
+      } catch {
+        return;
+      }
+      const parsed = TopicSchema.safeParse(raw);
+      const [topic] = parsed.success ? groundTopics([parsed.data as RawTopic], refs).valid : [];
+      if (topic) onTopic(topic);
+    });
 
   const first = await structured({
     model: MODELS.group,
@@ -87,6 +107,8 @@ export async function groupAsks(
     // The one long call. Retrying it would run past the route's 5-minute limit, so a stall surfaces as a retryable error.
     timeoutMs: 200_000,
     maxRetries: 0,
+    fast: FAST,
+    onText: handOver(),
     meter,
   });
 
@@ -116,6 +138,8 @@ export async function groupAsks(
         maxTokens: 16000,
         timeoutMs: 120_000,
         maxRetries: 0,
+        fast: FAST,
+        onText: handOver(),
         meter,
       });
       const second = groundTopics(fix.topics as RawTopic[], refs);

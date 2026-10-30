@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Quota, commentUrl, getRecentVideos, parseChannelInput } from "../src/lib/youtube";
+import { Quota, commentUrl, getRecentVideos, limiter, parseChannelInput } from "../src/lib/youtube";
 
 describe("parseChannelInput", () => {
   it.each([
@@ -53,4 +53,26 @@ describe("getRecentVideos with a cutoff", () => {
     const videos = await getRecentVideos(channel, 30, new Quota());
     expect(videos.map((v) => v.id)).toEqual(["a", "b"]);
   });
+});
+
+it("runs at most the limit of tasks at once, and starts queued ones as slots free up", async () => {
+  const slot = limiter(2);
+  let running = 0;
+  let peak = 0;
+  const done: number[] = [];
+  const task = (n: number, ms: number) =>
+    slot(async () => {
+      running += 1;
+      peak = Math.max(peak, running);
+      await new Promise((r) => setTimeout(r, ms));
+      running -= 1;
+      done.push(n);
+      return n;
+    });
+  const first = [task(1, 30), task(2, 10), task(3, 10)];
+  await new Promise((r) => setTimeout(r, 5));
+  const late = task(4, 1);
+  expect(await Promise.all([...first, late])).toEqual([1, 2, 3, 4]);
+  expect(peak).toBe(2);
+  expect(done).toEqual([2, 3, 4, 1]);
 });

@@ -287,6 +287,24 @@ export function decodeEntities(text: string) {
     .replace(/&amp;/g, "&");
 }
 
+/** Runs at most `limit` tasks at once, for work that arrives over time. */
+export function limiter(limit: number) {
+  let active = 0;
+  const waiting: (() => void)[] = [];
+  return async <R>(task: () => Promise<R>): Promise<R> => {
+    if (active < limit) active += 1;
+    else await new Promise<void>((resolve) => waiting.push(resolve));
+    try {
+      return await task();
+    } finally {
+      // Hand the slot straight to the next task, so a new caller can't slip in between.
+      const next = waiting.shift();
+      if (next) next();
+      else active -= 1;
+    }
+  };
+}
+
 export async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T, index: number) => Promise<R>): Promise<R[]> {
   const out = new Array<R>(items.length);
   let next = 0;

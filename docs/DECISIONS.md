@@ -6,7 +6,7 @@ Short records of the choices that shaped Audience Asks. Each one says what we pi
 
 **Decision:** find a channel's videos through its uploads playlist (`channels.list` → `playlistItems.list`), never through `search.list`. (The one place search is worth its price is the "already on YouTube?" check, which runs only when asked; see D13.)
 
-**Why:** `search.list` costs 100 quota units a call. The uploads playlist costs 1 unit per 50 videos. A full channel read is about 36 units instead of 130+, so the free 10,000-unit quota covers roughly 270 channels a day instead of about 75.
+**Why:** `search.list` costs 100 quota units a call. The uploads playlist costs 1 unit per 50 videos. A full channel read is about 35 units instead of 130+, so the free 10,000-unit quota covers roughly 285 channels a day instead of about 75.
 
 **Trade-off:** we only see the latest uploads, not "most popular ever". For "what do viewers want *now*", recent is what we want anyway.
 
@@ -104,13 +104,15 @@ Short records of the choices that shaped Audience Asks. Each one says what we pi
 
 **Trade-off:** Satoshi is loaded from Fontshare's API rather than committed, because its license (ITF FFL) allows self-hosting but not publishing the font files in a public repository. The share image (`src/app/opengraph-image.tsx`) fetches the same files when the site builds, and falls back to the default font if Fontshare can't be reached.
 
-## D15. Channel health: signals beyond views
+## D15. Point to past videos that already answer an ask
 
-**Decision:** above the asks, a panel shows three things views and subscriber counts can't: how many of the top asks a past video already answers, the balance of praise and complaints on each video, and which videos got 2× or more the channel's typical views, with the ask each one drew most.
+**Decision:** an ask card says when a past video already answers it ("Already answered in …") or covers part of it ("Partly covered in …"). One Claude Haiku 5.5 call matches the ranked asks to the titles of the latest 200 uploads, read in the same playlist pass as the videos (4 units).
 
-**Why:** a channel can grow its numbers without becoming more useful or more trusted. The comment labels from the sort step already measure praise and complaints, so sentiment costs nothing extra. Outliers need view counts (1 quota unit for 50 videos). "Already answered" is the closest measure of whether a channel is becoming the resource its viewers come to: one Claude Haiku 5.5 call matches the ranked asks to the titles of the latest 200 uploads, read in the same playlist pass as the videos (4 units). The model only sees refs (`a1`, `v12`), code drops any it wasn't given, and a match doesn't count when most of the people asking were watching that very video, since it plainly didn't answer them.
+**Why:** an ask the channel has already answered calls for a link in a reply or pinned comment, not a new video. The model only sees refs (`a1`, `v12`), code drops any it wasn't given, and a match doesn't count when most of the people asking were watching that very video, since it plainly didn't answer them. "Partly" needs the same specific question, not just the same subject, or nearly every ask on a single-topic channel would match something.
 
-**Trade-off:** matching on titles misses answers buried inside a video, so "answered" is an undercount and "open" can be too generous; reading transcripts would fix that at a much higher cost. "Typical views" is the median of the videos read, not the whole channel. Sentiment uses the sort step's labels, so it inherits that step's accuracy (see EVALS.md), and complaints include complaints about the subject, not only about the channel.
+**Trade-off:** matching on titles misses answers buried inside a video, so "answered" is an undercount; reading transcripts would fix that at a much higher cost.
+
+**Tried and removed:** this started inside a Channel health panel that also showed praise vs complaints on each video and outlier videos by views. It distracted from the asks without adding much, so it was cut, along with the view counts it needed (1 quota unit a run).
 
 ## D16. Every model call has a deadline
 
@@ -118,3 +120,13 @@ Short records of the choices that shaped Audience Asks. Each one says what we pi
 
 **Why:** the SDK's timeout only covers the wait for response headers, so a stream that stalls midway could hold a whole run open. With a deadline, a stalled sort batch becomes one failed batch, a stalled idea becomes one card with a retry, and nothing hangs.
 
+
+## D17. Grouping runs in fast mode, and cards go out as each topic is written
+
+**Decision:** the grouping call runs in fast mode, and its JSON answer is read as it streams. Each topic is checked against the comments the moment the model finishes it, sent to the page as a card, and its video idea starts right away. When grouping is done, a final ranked list replaces the cards sent so far, because two topics can still be merged as duplicates at the end (none have been in the evals so far).
+
+**Why:** grouping was about half of every run: 49 of 84 seconds on vidIQ. Nearly all of it was the model writing out about 4,500 tokens of topics, at roughly 135 a second, after 15 to 20 seconds of thinking. Fast mode is the same model writing about 2.5 to 3 times faster, with the same number of topics: grouping took 46–54 seconds at standard speed and 18–19 in fast mode on vidIQ and Peter McKinnon. With topics streamed as well, the first card shows about 6 seconds into the step instead of after the last one, and ideas are written while grouping finishes. A vidIQ run (not counting the YouTube fetch) went from 84 seconds to 40.
+
+**Trade-off:** fast mode costs twice the standard price for that call, about 22 cents more per channel ($0.19 to $0.41 on vidIQ), so a run costs about $0.60 instead of $0.40. It's a research preview on the Claude API only, with its own rate limit, so a fast request that fails before writing anything runs again at standard speed. `GROUP_SPEED=standard` turns it off.
+
+**Tried and rejected:** lower effort (26 seconds) and Claude Sonnet 5.5 (24 seconds, under half the price) were also quicker, but both returned 15 topics where Opus at medium effort returned 18 to 20, by folding separate asks together. On vidIQ, the 22-comment complaint about the Shorts monetization rules disappeared into the question about whether Shorts are still worth making.

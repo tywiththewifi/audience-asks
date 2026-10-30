@@ -15,7 +15,6 @@ export type Video = {
   title: string;
   publishedAt: string;
   thumbnail?: string;
-  views?: number;
 };
 
 export type Channel = {
@@ -110,25 +109,6 @@ export type StepName = "fetch" | "sort" | "group" | "ideas" | "coverage";
 /** A video from the channel's own back catalogue that already answers an ask. */
 export type CatalogMatch = { videoId: string; title: string; publishedAt: string; level: "answers" | "partly" };
 
-export type VideoSentiment = { id: string; title: string; publishedAt: string; praise: number; complaint: number; comments: number };
-
-export type Outlier = {
-  id: string;
-  title: string;
-  publishedAt: string;
-  views: number;
-  /** Views as a multiple of the median video read. */
-  multiple: number;
-  asks: number;
-  topAsk?: string;
-};
-
-/** Signals beyond views: how viewers feel, which videos break out, and whether the channel is already the answer. */
-export type ChannelHealth = {
-  sentiment: { praise: number; complaint: number; perVideo: VideoSentiment[] };
-  outliers: { medianViews?: number; videos: Outlier[] };
-};
-
 export type RunStats = {
   videos: number;
   comments: number;
@@ -161,9 +141,11 @@ export type PipelineEvent =
       perVideo: number;
     }
   | { type: "progress"; step: StepName; status: "start" | "done"; message: string }
+  /** One card, as soon as its topic is written. A card with an id already sent replaces it. */
   | { type: "card"; card: AskCard }
+  /** The ranked list once grouping is done. It replaces the cards sent so far (duplicates may have been merged). */
+  | { type: "cards"; cards: AskCard[] }
   | { type: "idea"; cardId: string; idea?: VideoIdea; error?: string }
-  | { type: "health"; health: ChannelHealth }
-  | { type: "coverage"; matches: { cardId: string; match: CatalogMatch }[]; catalogSize: number; checked: number }
+  | { type: "coverage"; matches: { cardId: string; match: CatalogMatch }[] }
   | { type: "step_error"; step: StepName; message: string; retryable: boolean }
   | { type: "done"; stats: RunStats };

@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createSSEParser } from "@/lib/sse";
-import type { AskCard, AskKind, Channel, ChannelHealth, PipelineEvent, RunStats, StepName } from "@/lib/types";
+import type { AskCard, AskKind, Channel, PipelineEvent, RunStats, StepName } from "@/lib/types";
 import { cardToMarkdown, toMarkdown } from "@/lib/markdown";
+import { rankCards, withEarlierState } from "@/lib/pipeline/cards";
 import { Card } from "./Card";
 import { ProgressRail, type StepState } from "./ProgressRail";
-import { HealthPanel, type Coverage } from "./HealthPanel";
 import { RunSpan } from "./RunSpan";
 
 const STEPS: StepName[] = ["fetch", "sort", "group", "ideas", "coverage"];
@@ -37,10 +37,6 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
   const [stats, setStats] = useState<RunStats | null>();
   const [fatal, setFatal] = useState<string>();
   const [filter, setFilter] = useState<Filter>("all");
-  const [recentOnly, setRecentOnly] = useState(false);
-  const [openOnly, setOpenOnly] = useState(false);
-  const [health, setHealth] = useState<ChannelHealth>();
-  const [coverage, setCoverage] = useState<Coverage>({ status: "pending" });
   const abort = useRef<AbortController>(null);
   const lastRun = useRef("");
 
@@ -54,22 +50,21 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
         setSteps((s) => ({ ...s, [ev.step]: { status: ev.status === "start" ? "active" : "done", message: ev.message } }));
         break;
       case "step_error":
-        if (ev.step === "coverage") setCoverage({ status: "error" });
         setSteps((s) => ({ ...s, [ev.step]: { status: "error", message: ev.message, retryable: ev.retryable } }));
         break;
       case "card":
-        setCards((c) => [...c, ev.card]);
+        // Cards arrive while grouping is still writing the rest, so each one goes in at its rank.
+        setCards((c) => rankCards([...c.filter((card) => card.id !== ev.card.id), ev.card]));
+        break;
+      case "cards":
+        setCards((c) => withEarlierState(ev.cards, c));
         break;
       case "idea":
         setCards((c) => c.map((card) => (card.id === ev.cardId ? { ...card, idea: ev.idea, ideaError: ev.error } : card)));
         break;
-      case "health":
-        setHealth(ev.health);
-        break;
       case "coverage": {
         const byCard = new Map(ev.matches.map((m) => [m.cardId, m.match]));
         setCards((c) => c.map((card) => ({ ...card, answeredBy: byCard.get(card.id) })));
-        setCoverage({ status: "done", catalogSize: ev.catalogSize });
         break;
       }
       case "done":
@@ -90,8 +85,6 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
       setSteps(freshSteps());
       setChannel(undefined);
       setSpan(undefined);
-      setHealth(undefined);
-      setCoverage({ status: "pending" });
       setCards([]);
       setStats(undefined);
       setFatal(undefined);
@@ -131,13 +124,7 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const visible = useMemo(
-    () =>
-      cards.filter(
-        (c) => (filter === "all" || c.kind === filter) && (!recentOnly || c.recentCount > 0) && (!openOnly || c.answeredBy?.level !== "answers"),
-      ),
-    [cards, filter, recentOnly, openOnly],
-  );
+  const visible = useMemo(() => cards.filter((c) => filter === "all" || c.kind === filter), [cards, filter]);
   const counts = useMemo(() => {
     const n = { all: cards.length, question: 0, request: 0, complaint: 0 };
     for (const c of cards) n[c.kind] += 1;
@@ -145,7 +132,7 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
   }, [cards]);
 
   const exportMarkdown = () => {
-    const blob = new Blob([toMarkdown(channel?.title ?? lastRun.current, visible, { comments: span?.range, videos: span?.videoRange }, health)], { type: "text/markdown" });
+    const blob = new Blob([toMarkdown(channel?.title ?? lastRun.current, visible, { comments: span?.range, videos: span?.videoRange })], { type: "text/markdown" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `audience-asks-${(channel?.handle ?? "channel").replace(/^@/, "")}.md`;
@@ -264,7 +251,6 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
 
             <div className="min-w-0">
               {span?.videoRange && <RunSpan span={span} />}
-              {health && cards.length > 0 && <HealthPanel health={health} cards={cards} coverage={coverage} />}
               {cards.length > 0 && (
                 <div className="mb-5 flex flex-wrap items-center gap-2">
                   <div role="tablist" aria-label="Filter asks" className="flex flex-wrap gap-1 rounded-full border border-line bg-panel p-1">
@@ -280,16 +266,6 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
                       </button>
                     ))}
                   </div>
-                  <label className="flex cursor-pointer items-center gap-2 rounded-full border border-line bg-panel px-4 py-2 text-sm">
-                    <input type="checkbox" checked={recentOnly} onChange={(e) => setRecentOnly(e.target.checked)} className="accent-accent" />
-                    Asked in the last 30 days
-                  </label>
-                  {coverage.status === "done" && (
-                    <label className="flex cursor-pointer items-center gap-2 rounded-full border border-line bg-panel px-4 py-2 text-sm">
-                      <input type="checkbox" checked={openOnly} onChange={(e) => setOpenOnly(e.target.checked)} className="accent-accent" />
-                      No video yet
-                    </label>
-                  )}
                   <button onClick={exportMarkdown} className="btn-secondary ml-auto h-9 px-4 text-sm">
                     Export Markdown
                   </button>
@@ -310,9 +286,9 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
                 ))}
               </ol>
 
-              {running && cards.length === 0 && (
-                <div className="space-y-4" aria-hidden>
-                  {[0, 1, 2].map((i) => (
+              {running && (cards.length === 0 || steps.group.status === "active") && (
+                <div className={`space-y-4 ${cards.length ? "mt-4" : ""}`} aria-hidden>
+                  {(cards.length ? [0] : [0, 1, 2]).map((i) => (
                     <div key={i} className="h-40 animate-pulse rounded-2xl border border-line bg-panel" />
                   ))}
                 </div>

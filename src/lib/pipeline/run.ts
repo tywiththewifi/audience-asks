@@ -12,10 +12,9 @@ import {
   type RunStats,
   type Video,
 } from "../types";
-import { Quota, YouTubeError, getChannel, getRecentVideos, getVideoComments, getVideoDetails, isQuotaError, mapLimit, parseChannelInput } from "../youtube";
+import { Quota, YouTubeError, getChannel, getRecentVideos, getVideoComments, isQuotaError, limiter, mapLimit, parseChannelInput } from "../youtube";
 import { buildCard, rankCards } from "./cards";
 import { COVERAGE_SYSTEM, matchCatalog } from "./coverage";
-import { channelHealth } from "./health";
 import { GROUP_SYSTEM, groupAsks } from "./group";
 import { IDEAS_SYSTEM, writeIdea } from "./ideas";
 import { SORT_SYSTEM, sortComments, worthSorting } from "./sort";
@@ -63,14 +62,6 @@ async function fetchChannelData(input: string, maxVideos: number, perVideo: numb
   const catalog = await getRecentVideos(channel, Math.max(CATALOG_SIZE, maxVideos), quota);
   const since = monthsAgo(months);
   const videos = catalog.filter((v) => !since || Date.parse(v.publishedAt) >= since).slice(0, maxVideos);
-  const details = await getVideoDetails(
-    videos.map((v) => v.id),
-    quota,
-  );
-  for (const v of videos) {
-    const views = details.get(v.id)?.statistics?.viewCount;
-    if (views !== undefined) v.views = Number(views);
-  }
   let skippedVideos = 0;
   // One video's comments failing (after retries) shouldn't sink the whole channel. Quota errors still do.
   const lists = await mapLimit(videos, 8, async (v) => {
@@ -224,29 +215,9 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
     return;
   }
 
-  // 3. Group
+  // 3. Group, 4. ideas and 5. matching asks to the back catalogue. Each card goes out as soon as its topic is
+  // written and its idea starts right away; the ranked list follows when grouping is done. Events stream back as each lands.
   yield { type: "progress", step: "group", status: "start", message: `Grouping ${asks.length} asks into topics` };
-  let cards: AskCard[];
-  try {
-    const res = await cached(cacheKey("group", MODELS.group, GROUP_SYSTEM, asks.map((c) => c.id)), TTL.day, () =>
-      groupAsks(asks, meter, { channelTitle: data.channel.title }),
-    );
-    const byId = new Map(data.comments.map((c) => [c.id, c]));
-    cards = rankCards(res.value.topics.map((t) => buildCard(t, byId)));
-    stats.topicsDropped = res.value.dropped;
-    stats.groundingRetries = res.value.retried ? 1 : 0;
-  } catch (err) {
-    yield { type: "step_error", step: "group", message: (err as Error).message, retryable: err instanceof LLMError && err.retryable };
-    yield finish();
-    return;
-  }
-  const droppedNote = stats.topicsDropped ? ` (${stats.topicsDropped} dropped for bad citations)` : "";
-  yield { type: "progress", step: "group", status: "done", message: `Grouped into ${cards.length} topics${droppedNote}` };
-  for (const card of cards) yield { type: "card", card };
-  yield { type: "health", health: channelHealth(data.videos, data.comments, labels, cards, asks) };
-
-  // 4. Ideas, and 5. matching asks to the back catalogue, side by side. Events stream back as each lands.
-  yield { type: "progress", step: "ideas", status: "start", message: "Writing a video idea for each topic" };
   const byId = new Map(data.comments.map((c) => [c.id, c]));
   const context = { channelTitle: data.channel.title, recentTitles: data.videos.map((v) => v.title) };
   const queue: PipelineEvent[] = [];
@@ -255,31 +226,31 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
     queue.push(ev);
     wake?.();
   };
-  let failures = 0;
-  const ideas = mapLimit(cards, 4, async (card) => {
-    try {
-      const comments = card.commentIds.map((id) => byId.get(id)!).sort((a, b) => b.likeCount - a.likeCount);
-      const { value } = await cached(cacheKey("idea", MODELS.ideas, IDEAS_SYSTEM, card.ask, card.commentIds), TTL.day, () =>
-        writeIdea(card, comments, context, meter),
-      );
-      push({ type: "idea", cardId: card.id, idea: value });
-    } catch (err) {
-      failures += 1;
-      push({ type: "idea", cardId: card.id, error: (err as Error).message });
-    }
-  }).then(() => {
-    push({
-      type: "progress",
-      step: "ideas",
-      status: "done",
-      message: failures ? `Wrote ${cards.length - failures} of ${cards.length} video ideas` : `Wrote ${cards.length} video ideas`,
+
+  const ideaSlot = limiter(4);
+  // Each card's idea, resolving to whether it came through.
+  const ideas = new Map<string, Promise<boolean>>();
+  const startIdea = (card: AskCard) => {
+    if (ideas.has(card.id)) return;
+    if (!ideas.size) push({ type: "progress", step: "ideas", status: "start", message: "Writing a video idea for each topic" });
+    const job = ideaSlot(async () => {
+      try {
+        const comments = card.commentIds.map((id) => byId.get(id)!).sort((a, b) => b.likeCount - a.likeCount);
+        const { value } = await cached(cacheKey("idea", MODELS.ideas, IDEAS_SYSTEM, card.ask, card.commentIds), TTL.day, () =>
+          writeIdea(card, comments, context, meter),
+        );
+        push({ type: "idea", cardId: card.id, idea: value });
+        return true;
+      } catch (err) {
+        push({ type: "idea", cardId: card.id, error: (err as Error).message });
+        return false;
+      }
     });
-    if (failures) push({ type: "step_error", step: "ideas", message: `${failures} video ideas failed. Retry to fill them in.`, retryable: true });
-  });
+    ideas.set(card.id, job);
+  };
 
   const catalog = data.catalog ?? [];
-  const coverage = catalog.length ? matchAsksToCatalog() : Promise.resolve();
-  async function matchAsksToCatalog() {
+  async function matchAsksToCatalog(cards: AskCard[]) {
     push({ type: "progress", step: "coverage", status: "start", message: `Checking ${catalog.length} past videos for answers` });
     try {
       const { value } = await cached(
@@ -288,7 +259,7 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
         async () => [...(await matchCatalog(cards, catalog, meter, data.channel.title))],
       );
       const matches = value.map(([cardId, match]) => ({ cardId, match }));
-      push({ type: "coverage", matches, catalogSize: catalog.length, checked: cards.length });
+      push({ type: "coverage", matches });
       const answered = matches.filter((m) => m.match.level === "answers").length;
       push({
         type: "progress",
@@ -301,8 +272,54 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
     }
   }
 
+  const streamed: AskCard[] = [];
+  const work = (async () => {
+    let cards: AskCard[];
+    try {
+      const res = await cached(cacheKey("group", MODELS.group, GROUP_SYSTEM, asks.map((c) => c.id)), TTL.day, () =>
+        groupAsks(asks, meter, { channelTitle: data.channel.title }, (topic) => {
+          const card = buildCard(topic, byId);
+          streamed.push(card);
+          push({ type: "card", card });
+          push({ type: "progress", step: "group", status: "start", message: `Grouping ${asks.length} asks into topics: ${streamed.length} so far` });
+          startIdea(card);
+        }),
+      );
+      cards = rankCards(res.value.topics.map((t) => buildCard(t, byId)));
+      stats.topicsDropped = res.value.dropped;
+      stats.groundingRetries = res.value.retried ? 1 : 0;
+      const droppedNote = stats.topicsDropped ? ` (${stats.topicsDropped} dropped for bad citations)` : "";
+      push({ type: "progress", step: "group", status: "done", message: `Grouped into ${cards.length} topics${droppedNote}` });
+    } catch (err) {
+      const retryable = err instanceof LLMError && err.retryable;
+      if (!streamed.length) {
+        push({ type: "step_error", step: "group", message: (err as Error).message, retryable });
+        return;
+      }
+      // The topics written before it stopped already passed the citation check, so they stay.
+      cards = rankCards(streamed);
+      const kept = `${cards.length} ${cards.length === 1 ? "topic" : "topics"}`;
+      push({ type: "step_error", step: "group", message: `${(err as Error).message} Showing the ${kept} written before it stopped.`, retryable });
+    }
+    push({ type: "cards", cards });
+    if (!cards.length) return;
+    for (const card of cards) startIdea(card);
+
+    const written = Promise.all(cards.map((c) => ideas.get(c.id)!)).then((results) => {
+      const failures = results.filter((ok) => !ok).length;
+      push({
+        type: "progress",
+        step: "ideas",
+        status: "done",
+        message: failures ? `Wrote ${cards.length - failures} of ${cards.length} video ideas` : `Wrote ${cards.length} video ideas`,
+      });
+      if (failures) push({ type: "step_error", step: "ideas", message: `${failures} video ideas failed. Retry to fill them in.`, retryable: true });
+    });
+    await Promise.all([written, catalog.length ? matchAsksToCatalog(cards) : undefined]);
+  })();
+
   let settled = false;
-  Promise.all([ideas, coverage]).finally(() => {
+  work.finally(() => {
     settled = true;
     wake?.();
   });
