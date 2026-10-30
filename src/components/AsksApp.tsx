@@ -17,6 +17,9 @@ const WINDOWS = [
   { months: 12, label: "Videos from the last 12 months" },
   { months: 0, label: "Videos of any age" },
 ];
+const REPO = "https://github.com/tywiththewifi/audience-asks";
+// The docs at the commit that's deployed (Vercel sets the SHA at build time), so the link matches the running code.
+const DOCS = `${REPO}/blob/${process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || "main"}/docs/ARCHITECTURE.md`;
 
 const freshSteps = (): Record<StepName, StepState> =>
   Object.fromEntries(STEPS.map((s) => [s, { status: "idle" as const }])) as Record<StepName, StepState>;
@@ -165,10 +168,10 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
             Audience Asks
           </a>
           <div className="flex items-center gap-2 text-sm">
-            <a className="hidden px-3 text-muted hover:text-white sm:inline" href="https://github.com/tywiththewifi/audience-asks/blob/main/docs/ARCHITECTURE.md">
+            <a className="hidden px-3 text-muted hover:text-white sm:inline" href={DOCS} target="_blank" rel="noopener">
               How it works
             </a>
-            <a className="btn-secondary h-9 px-4" href="https://github.com/tywiththewifi/audience-asks">
+            <a className="btn-secondary h-9 px-4" href={REPO} target="_blank" rel="noopener">
               Source
             </a>
           </div>
@@ -323,10 +326,10 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
 
         <footer className="mt-20 text-xs text-muted">
           An independent concept by{" "}
-          <a className="underline hover:text-white" href="https://www.tywiththewifi.dev/">
+          <a className="underline hover:text-white" href="https://www.tywiththewifi.dev/" target="_blank" rel="noopener">
             Tyler
           </a>{" "}
-          (<a className="underline hover:text-white" href="https://github.com/tywiththewifi/audience-asks">source</a>). Not affiliated with vidIQ or YouTube. Comments are read
+          (<a className="underline hover:text-white" href={REPO} target="_blank" rel="noopener">source</a>). Not affiliated with vidIQ or YouTube. Comments are read
           through the public YouTube Data API.
         </footer>
       </main>
