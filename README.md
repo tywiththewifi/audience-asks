@@ -11,11 +11,11 @@
 
 1. Finds the channel's latest uploads (up to 50) and reads their top comments through the YouTube Data API.
 2. **Sorts** every comment as a question, request, complaint, praise, other or spam (Claude Haiku 5.5, in parallel batches).
-3. **Groups** the questions, requests and complaints into topics, each citing the comments it came from (Claude Opus 5.5). Code checks every citation and quote; anything that doesn't check out is retried once, then dropped.
+3. **Groups** the questions, requests and complaints into topics, each citing the comments it came from (Claude Opus 5.5 in fast mode). Code checks every citation and quote as each topic is written; anything that doesn't check out is retried once, then dropped.
 4. **Writes a video idea** per topic: two titles in the channel's style, a hook and why it should work.
 5. **Points to past videos that already answer an ask**: it matches the ranked asks against the titles of the channel's latest 200 uploads (Claude Haiku 5.5) and marks each ask a past video answers, fully or in part, so the creator can link it instead of remaking it.
 6. **Checks whether that video already exists**, on request: it searches YouTube for the idea, rates which top results already make it (Claude Haiku 5.5), and says whether the idea is open, has a few takers, is crowded, or is one the channel already made, with links, views and age, and how to stand out.
-7. Streams it all to the page as it happens, so cards appear while ideas are still being written.
+7. Streams it all to the page as it happens: each card appears as soon as its topic is written, and its idea starts right away, while the rest are still being grouped.
 
 Filter by questions, requests or complaints; export to Markdown or copy one idea. It works on any public channel with no sign-in.
 

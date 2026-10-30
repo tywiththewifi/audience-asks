@@ -8,6 +8,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { toMarkdown } from "../src/lib/markdown";
+import { withEarlierState } from "../src/lib/pipeline/cards";
 import { checkIdea } from "../src/lib/pipeline/existing";
 import { runAudienceAsks } from "../src/lib/pipeline/run";
 import type { AskCard, DateRange } from "../src/lib/types";
@@ -45,6 +46,11 @@ server.registerTool(
         span = { comments: ev.range, videos: ev.videoRange };
       }
       if (ev.type === "card") cards.set(ev.card.id, ev.card);
+      if (ev.type === "cards") {
+        const earlier = [...cards.values()];
+        cards.clear();
+        for (const card of withEarlierState(ev.cards, earlier)) cards.set(card.id, card);
+      }
       if (ev.type === "coverage") for (const m of ev.matches) if (cards.has(m.cardId)) cards.get(m.cardId)!.answeredBy = m.match;
       if (ev.type === "idea" && cards.has(ev.cardId)) cards.get(ev.cardId)!.idea = ev.idea;
       if (ev.type === "step_error") errors.push(`${ev.step}: ${ev.message}`);

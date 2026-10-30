@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createSSEParser } from "@/lib/sse";
 import type { AskCard, AskKind, Channel, PipelineEvent, RunStats, StepName } from "@/lib/types";
 import { cardToMarkdown, toMarkdown } from "@/lib/markdown";
+import { rankCards, withEarlierState } from "@/lib/pipeline/cards";
 import { Card } from "./Card";
 import { ProgressRail, type StepState } from "./ProgressRail";
 import { RunSpan } from "./RunSpan";
@@ -52,7 +53,11 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
         setSteps((s) => ({ ...s, [ev.step]: { status: "error", message: ev.message, retryable: ev.retryable } }));
         break;
       case "card":
-        setCards((c) => [...c, ev.card]);
+        // Cards arrive while grouping is still writing the rest, so each one goes in at its rank.
+        setCards((c) => rankCards([...c.filter((card) => card.id !== ev.card.id), ev.card]));
+        break;
+      case "cards":
+        setCards((c) => withEarlierState(ev.cards, c));
         break;
       case "idea":
         setCards((c) => c.map((card) => (card.id === ev.cardId ? { ...card, idea: ev.idea, ideaError: ev.error } : card)));
@@ -281,9 +286,9 @@ export function AsksApp({ initialChannel, videos, initialMonths }: { initialChan
                 ))}
               </ol>
 
-              {running && cards.length === 0 && (
-                <div className="space-y-4" aria-hidden>
-                  {[0, 1, 2].map((i) => (
+              {running && (cards.length === 0 || steps.group.status === "active") && (
+                <div className={`space-y-4 ${cards.length ? "mt-4" : ""}`} aria-hidden>
+                  {(cards.length ? [0] : [0, 1, 2]).map((i) => (
                     <div key={i} className="h-40 animate-pulse rounded-2xl border border-line bg-panel" />
                   ))}
                 </div>

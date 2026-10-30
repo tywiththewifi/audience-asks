@@ -13,14 +13,15 @@ paste @handle ──GET──────▶ rate limit (per IP)
                                           commentThreads.list × videos      1 unit / video
                              2. sort   ── cached by comment ids ───────────────────────▶ Claude Haiku 5.5
                                           batches of 80, 6 in parallel, zod-checked JSON
-                             3. group  ── cached by ask ids ───────────────────────────▶ Claude Opus 5.5
+                             3. group  ── cached by ask ids ───────────────────────────▶ Claude Opus 5.5, fast mode
                                           topics must cite comment refs + exact quotes
+                                          each topic checked and sent as soon as it's written
                                           grounding check → one scoped retry → drop
                              4. ideas  ── cached per topic ────────────────────────────▶ Claude Opus 5.5
-                                          4 in parallel, streamed as each finishes
-                             5. coverage ─ side by side with 4, cached ─────────────────▶ Claude Haiku 5.5
+                                          4 in parallel, each starting as its card lands
+                             5. coverage ─ once grouping is done, cached ───────────────▶ Claude Haiku 5.5
                                           asks matched to the last 200 uploads' titles
-◀──text/event-stream────── progress · channel · card · idea · coverage · step_error · done
+◀──text/event-stream────── progress · channel · card · cards · idea · coverage · step_error · done
 render cards as they land
 ```
 
@@ -32,13 +33,14 @@ The pipeline is one async generator (`src/lib/pipeline/run.ts`). The route handl
 |---|---|---|
 | `progress` | a step starts or finishes | step, status, human message ("Read 4,812 comments") |
 | `channel` | channel resolved | title, handle, avatar |
-| `card` | after grouping, one per topic, ranked | the ask, viewer count, videos, three proof comments, evidence |
+| `card` | while grouping, as soon as each topic is written and checked | the ask, viewer count, videos, three proof comments, evidence |
+| `cards` | when grouping is done | every card, ranked; it replaces the ones sent so far, since duplicates are merged at the end |
 | `idea` | as each idea call returns | card id + titles, hook, why — or an error for that card only |
 | `coverage` | when the back-catalogue match returns | for each answered ask: the past video and "answers" or "partly" |
 | `step_error` | a step failed or partly failed | step, message, whether a retry can help |
 | `done` | always last | comments, quota units, cost in USD, time |
 
-Cards render before their ideas exist, so the creator is reading real comments within seconds of the grouping step, while ideas fill in.
+The grouping answer is JSON, read as it streams (`src/lib/json-stream.ts`): each topic is checked and sent the moment its closing brace arrives, so the first card shows a few seconds into the step and its idea starts while the model is still writing the rest. The page slots each card in at its rank. See DECISIONS.md, D17.
 
 ## Quota maths
 
@@ -81,15 +83,16 @@ Caching by inputs (not by channel) is what makes "Retry" cheap: completed steps 
 
 ## Cost per channel
 
-Measured numbers live in [EVALS.md](./EVALS.md). The sort step sends every comment through the cheapest model; the grouping step sends only the questions, requests and complaints (usually 10–20% of comments) through the larger one.
+Measured numbers live in [EVALS.md](./EVALS.md). The sort step sends every comment through the cheapest model; the grouping step sends only the questions, requests and complaints (usually 10–20% of comments) through the larger one, in fast mode at twice the standard price. A 30-video run on vidIQ costs about $0.60, roughly $0.41 of it for grouping.
 
 ## Where things live
 
 ```
 src/lib/youtube.ts           YouTube client, input parsing, quota counter
 src/lib/llm.ts               structured Claude calls, error mapping, cost meter
+src/lib/json-stream.ts       pulls finished items out of a JSON answer while it streams
 src/lib/pipeline/sort.ts     step 1 prompt + batching
-src/lib/pipeline/group.ts    step 2 prompt + scoped retry
+src/lib/pipeline/group.ts    step 2 prompt + scoped retry, topics handed over as they stream
 src/lib/pipeline/grounding.ts   citation and quote checks, duplicate merging
 src/lib/pipeline/ideas.ts    step 3 prompt
 src/lib/pipeline/cards.ts    viewer counts, evidence badges, ranking

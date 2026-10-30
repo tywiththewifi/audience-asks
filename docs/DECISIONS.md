@@ -120,3 +120,13 @@ Short records of the choices that shaped Audience Asks. Each one says what we pi
 
 **Why:** the SDK's timeout only covers the wait for response headers, so a stream that stalls midway could hold a whole run open. With a deadline, a stalled sort batch becomes one failed batch, a stalled idea becomes one card with a retry, and nothing hangs.
 
+
+## D17. Grouping runs in fast mode, and cards go out as each topic is written
+
+**Decision:** the grouping call runs in fast mode, and its JSON answer is read as it streams. Each topic is checked against the comments the moment the model finishes it, sent to the page as a card, and its video idea starts right away. When grouping is done, a final ranked list replaces the cards sent so far, because two topics can still be merged as duplicates at the end (none have been in the evals so far).
+
+**Why:** grouping was about half of every run: 49 of 84 seconds on vidIQ. Nearly all of it was the model writing out about 4,500 tokens of topics, at roughly 135 a second, after 15 to 20 seconds of thinking. Fast mode is the same model writing about 2.5 to 3 times faster, with the same number of topics: grouping took 46–54 seconds at standard speed and 18–19 in fast mode on vidIQ and Peter McKinnon. With topics streamed as well, the first card shows about 6 seconds into the step instead of after the last one, and ideas are written while grouping finishes. A vidIQ run (not counting the YouTube fetch) went from 84 seconds to 40.
+
+**Trade-off:** fast mode costs twice the standard price for that call, about 22 cents more per channel ($0.19 to $0.41 on vidIQ), so a run costs about $0.60 instead of $0.40. It's a research preview on the Claude API only, with its own rate limit, so a fast request that fails before writing anything runs again at standard speed. `GROUP_SPEED=standard` turns it off.
+
+**Tried and rejected:** lower effort (26 seconds) and Claude Sonnet 5.5 (24 seconds, under half the price) were also quicker, but both returned 15 topics where Opus at medium effort returned 18 to 20, by folding separate asks together. On vidIQ, the 22-comment complaint about the Shorts monetization rules disappeared into the question about whether Shorts are still worth making.

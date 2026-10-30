@@ -141,7 +141,10 @@ export type PipelineEvent =
       perVideo: number;
     }
   | { type: "progress"; step: StepName; status: "start" | "done"; message: string }
+  /** One card, as soon as its topic is written. A card with an id already sent replaces it. */
   | { type: "card"; card: AskCard }
+  /** The ranked list once grouping is done. It replaces the cards sent so far (duplicates may have been merged). */
+  | { type: "cards"; cards: AskCard[] }
   | { type: "idea"; cardId: string; idea?: VideoIdea; error?: string }
   | { type: "coverage"; matches: { cardId: string; match: CatalogMatch }[] }
   | { type: "step_error"; step: StepName; message: string; retryable: boolean }
