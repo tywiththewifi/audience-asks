@@ -18,10 +18,12 @@ export const COVERAGE_SYSTEM = `You match what a channel's viewers are asking fo
 You get numbered asks (a1, a2…) and the channel's video titles (v1, v2…) with their dates.
 
 For each ask, return the one past video that best answers it, if any does:
-- "answers": the title clearly promises to answer this ask. A viewer who asked would be satisfied being sent to that video.
-- "partly": same subject, but it covers only part of the ask, or an older version of it.
+- "answers": the title clearly promises to answer this specific ask. A viewer who asked would be satisfied being sent to that video.
+- "partly": the title takes on this same specific question, but answers only part of it, or an older version of it (for example, last year's rules).
 
-Give refs only ("a3", "v12"), not the text. Leave an ask out when no title fits. Judge only from the titles; don't guess at what a video contains. Most asks usually have no match, and that's fine.`;
+Sharing a broad subject is not a match. On a channel where every video is about the same field, most asks will have no match, and that's the useful answer. When in doubt, leave the ask out.
+
+Give refs only ("a3", "v12"), not the text. Judge only from the titles; don't guess at what a video contains.`;
 
 /**
  * Which asks the channel's back catalogue already answers. The model only sees refs (a1, v1), and code drops
