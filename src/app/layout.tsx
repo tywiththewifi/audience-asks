@@ -1,9 +1,22 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
+// The favicon, Apple icon and share image are the files next to this one (favicon.ico, icon.svg,
+// apple-icon.png, opengraph-image.tsx); Next adds their tags.
 export const metadata: Metadata = {
-  title: "Audience Asks",
-  description: "Paste a YouTube channel and see what its viewers keep asking for, ranked, with the real comments behind each ask.",
+  metadataBase: new URL("https://audience-asks.vercel.app"),
+  title: "Audience Asks: turn YouTube comments into video ideas",
+  description:
+    "Paste any YouTube channel to see what its viewers keep asking for, ranked, with the real comments behind each ask and a video idea to answer it.",
+  // A shared ?channel= link starts a run, so every variant points search engines at the home page.
+  alternates: { canonical: "/" },
+  openGraph: { type: "website", siteName: "Audience Asks", url: "/" },
+  twitter: { card: "summary_large_image" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0a0d15",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

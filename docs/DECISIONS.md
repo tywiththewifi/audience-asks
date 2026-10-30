@@ -102,7 +102,7 @@ Short records of the choices that shaped Audience Asks. Each one says what we pi
 
 **Why:** this is a concept for vidIQ, so it should look like it could ship inside vidIQ. It keeps its own name and mark and says it isn't affiliated.
 
-**Trade-off:** Satoshi is loaded from Fontshare's API rather than committed, because its license (ITF FFL) allows self-hosting but not publishing the font files in a public repository.
+**Trade-off:** Satoshi is loaded from Fontshare's API rather than committed, because its license (ITF FFL) allows self-hosting but not publishing the font files in a public repository. The share image (`src/app/opengraph-image.tsx`) fetches the same files when the site builds, and falls back to the default font if Fontshare can't be reached.
 
 ## D15. Channel health: signals beyond views
 
