@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+/* Tokens taken from vidiq.com (October 2026): surfaces, borders, text, the brand blue and Satoshi. */
+@theme {
+  --font-sans: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #0a0d15;
+  --color-panel: #0d1017;
+  --color-raised: #161922;
+  --color-line: #2d2f39;
+  --color-line-soft: #1e212b;
+  --color-muted: #a2a7b8;
+  --color-soft: #c8ccd6;
+  --color-accent: #0463fd;
+  --color-accent-text: #67a1ff;
+  --color-accent-soft: #0463fd29;
+  --color-strong: #2fd08a;
+  --color-some: #f5b544;
+  --color-crowded: #ff6b7a;
+  --color-thin: #a2a7b8;
+  /* Diverging pair for praise vs complaints, validated for CVD separation on the card surface. */
+  --color-praise: #3d86f7;
+  --color-complaint: #e35d4a;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-ink);
+  color: #f7f7f7;
+}
+
+/* vidIQ's pill buttons: a flat fill inside a 1px gradient border. */
+.btn-primary,
+.btn-secondary,
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: filter 150ms, opacity 150ms;
+}
+.btn-primary {
+  color: #f7f7f7;
+  background:
+    linear-gradient(#0463fd, #0463fd) padding-box,
+    linear-gradient(#67a1ff, #0463fd 50%, #3880ff) border-box;
+}
+.btn-secondary {
+  color: #f7f7f7;
+  background:
+    linear-gradient(#161920, #161920) padding-box,
+    linear-gradient(#2d2f39, #161920 50%, #1e212b) border-box;
+}
+.chip {
+  color: var(--color-soft);
+  background:
+    linear-gradient(#0a0d15, #0a0d15) padding-box,
+    linear-gradient(#2d2f39, #2d2f3900 50%, #1e212b) border-box;
+}
+.btn-primary:hover:not(:disabled),
+.btn-secondary:hover:not(:disabled),
+.chip:hover {
+  filter: brightness(1.15);
+}
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.chip:focus-visible {
+  outline: 2px solid var(--color-accent-text);
+  outline-offset: 2px;
+}
+
+/* The soft blue glow behind vidIQ's hero. */
+.hero-glow {
+  background: radial-gradient(60% 120% at 50% 0%, #0463fd2e 0%, #0463fd00 70%);
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.animate-rise { animation: rise 320ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise { animation: none; }
+}
+
+/* Native select with the arrow drawn in, so it gets the same right padding as the left. */
+.select {
+  appearance: none;
+  padding-right: 2.75rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23a2a7b8' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+}

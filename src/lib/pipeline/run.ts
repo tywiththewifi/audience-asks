@@ -1,28 +1,89 @@
 import { TTL, cacheKey, cached } from "../cache";
 import { LLMError, MODELS, Meter } from "../llm";
-import { ASK_KINDS, COMMENT_LABELS, type AskCard, type Channel, type Comment, type CommentLabel, type PipelineEvent, type RunStats, type Video } from "../types";
-import { Quota, YouTubeError, getChannel, getRecentVideos, getVideoComments, mapLimit, parseChannelInput } from "../youtube";
+import {
+  ASK_KINDS,
+  COMMENT_LABELS,
+  type AskCard,
+  type Channel,
+  type Comment,
+  type CommentLabel,
+  type DateRange,
+  type PipelineEvent,
+  type RunStats,
+  type Video,
+} from "../types";
+import { Quota, YouTubeError, getChannel, getRecentVideos, getVideoComments, getVideoDetails, isQuotaError, mapLimit, parseChannelInput } from "../youtube";
 import { buildCard, rankCards } from "./cards";
-import { groupAsks } from "./group";
-import { writeIdea } from "./ideas";
-import { sortComments, worthSorting } from "./sort";
+import { COVERAGE_SYSTEM, matchCatalog } from "./coverage";
+import { channelHealth } from "./health";
+import { GROUP_SYSTEM, groupAsks } from "./group";
+import { IDEAS_SYSTEM, writeIdea } from "./ideas";
+import { SORT_SYSTEM, sortComments, worthSorting } from "./sort";
 
 export type RunOptions = {
   maxVideos?: number;
   commentsPerVideo?: number;
+  /** Only read videos from the last N months (default 12). 0 reads the latest videos whatever their age. */
+  months?: number;
   /** Supply comments directly (evals and tests) instead of calling YouTube. */
-  snapshot?: { channel: Channel; videos: Video[]; comments: Comment[] };
+  snapshot?: { channel: Channel; videos: Video[]; comments: Comment[]; catalog?: Video[] };
   signal?: AbortSignal;
 };
 
-type Fetched = { channel: Channel; videos: Video[]; comments: Comment[]; quotaUnits: number };
+type Fetched = { channel: Channel; videos: Video[]; comments: Comment[]; catalog?: Video[]; quotaUnits: number; skippedVideos: number };
 
-async function fetchChannelData(input: string, maxVideos: number, perVideo: number): Promise<Fetched> {
+/** How far back the "already answered" check looks: the latest uploads, 4 quota units for 200. */
+export const CATALOG_SIZE = 200;
+
+export const DEFAULT_MONTHS = 12;
+
+/** The cutoff for "the last N months", in ms. Undefined when there's no cutoff. */
+export function monthsAgo(months: number, now = Date.now()) {
+  if (!months) return undefined;
+  const d = new Date(now);
+  d.setUTCMonth(d.getUTCMonth() - months);
+  return d.getTime();
+}
+
+export function dateRange(items: { publishedAt: string }[]): DateRange | undefined {
+  if (!items.length) return undefined;
+  let from = items[0].publishedAt;
+  let to = from;
+  for (const c of items) {
+    if (c.publishedAt < from) from = c.publishedAt;
+    if (c.publishedAt > to) to = c.publishedAt;
+  }
+  return { from, to };
+}
+
+async function fetchChannelData(input: string, maxVideos: number, perVideo: number, months: number): Promise<Fetched> {
   const quota = new Quota();
   const channel = await getChannel(parseChannelInput(input), quota);
-  const videos = await getRecentVideos(channel, maxVideos, quota);
-  const lists = await mapLimit(videos, 8, (v) => getVideoComments(v, perVideo, quota));
-  return { channel, videos, comments: lists.flat(), quotaUnits: quota.units };
+  // One read of the uploads playlist serves both the videos to analyse and the back catalogue to match asks against.
+  const catalog = await getRecentVideos(channel, Math.max(CATALOG_SIZE, maxVideos), quota);
+  const since = monthsAgo(months);
+  const videos = catalog.filter((v) => !since || Date.parse(v.publishedAt) >= since).slice(0, maxVideos);
+  const details = await getVideoDetails(
+    videos.map((v) => v.id),
+    quota,
+  );
+  for (const v of videos) {
+    const views = details.get(v.id)?.statistics?.viewCount;
+    if (views !== undefined) v.views = Number(views);
+  }
+  let skippedVideos = 0;
+  // One video's comments failing (after retries) shouldn't sink the whole channel. Quota errors still do.
+  const lists = await mapLimit(videos, 8, async (v) => {
+    try {
+      return await getVideoComments(v, perVideo, quota);
+    } catch (err) {
+      if (isQuotaError(err)) throw err;
+      skippedVideos += 1;
+      return [];
+    }
+  });
+  if (videos.length && skippedVideos === videos.length) throw new YouTubeError("YouTube couldn't return comments for any of these videos. Try again in a minute.");
+  return { channel, videos, comments: lists.flat(), catalog, quotaUnits: quota.units, skippedVideos };
 }
 
 /**
@@ -34,6 +95,7 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   const meter = new Meter();
   const maxVideos = opts.maxVideos ?? 30;
   const perVideo = opts.commentsPerVideo ?? 100;
+  const months = opts.months ?? DEFAULT_MONTHS;
   const stats: RunStats = {
     videos: 0,
     comments: 0,
@@ -45,6 +107,7 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
     topicsDropped: 0,
     groundingRetries: 0,
     cached: false,
+    months,
   };
   const finish = (): PipelineEvent => {
     stats.costUsd = Number(meter.costUsd.toFixed(4));
@@ -57,17 +120,17 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   let data: Fetched;
   try {
     if (opts.snapshot) {
-      data = { ...opts.snapshot, quotaUnits: 0 };
+      data = { ...opts.snapshot, quotaUnits: 0, skippedVideos: 0 };
     } else {
-      const res = await cached(cacheKey("fetch", input.trim().toLowerCase(), maxVideos, perVideo), TTL.day, () =>
-        fetchChannelData(input, maxVideos, perVideo),
+      const res = await cached(cacheKey("fetch", "v2", input.trim().toLowerCase(), maxVideos, perVideo, months), TTL.day, () =>
+        fetchChannelData(input, maxVideos, perVideo, months),
       );
       data = res.value;
       stats.cached = res.hit;
       stats.quotaUnits = res.hit ? 0 : data.quotaUnits;
     }
   } catch (err) {
-    const quotaHit = err instanceof YouTubeError && (err.reason === "quotaExceeded" || err.reason === "dailyLimitExceeded");
+    const quotaHit = isQuotaError(err);
     yield {
       type: "step_error",
       step: "fetch",
@@ -79,13 +142,44 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   }
   stats.videos = data.videos.length;
   stats.comments = data.comments.length;
-  yield { type: "channel", channel: data.channel };
+  stats.range = dateRange(data.comments);
+  stats.videoRange = dateRange(data.videos);
+  yield {
+    type: "channel",
+    channel: data.channel,
+    months,
+    range: stats.range,
+    videoRange: stats.videoRange,
+    videoCount: data.videos.length,
+    maxVideos,
+    perVideo,
+  };
+  if (!data.videos.length) {
+    yield {
+      type: "step_error",
+      step: "fetch",
+      message: months
+        ? `This channel hasn't posted a video in the last ${months} months. Choose "Any time" to read its latest videos anyway.`
+        : "This channel has no public videos yet.",
+      retryable: false,
+    };
+    yield finish();
+    return;
+  }
   yield {
     type: "progress",
     step: "fetch",
     status: "done",
     message: `Found ${data.videos.length} recent videos and read ${data.comments.length.toLocaleString("en-US")} comments`,
   };
+  if (data.skippedVideos) {
+    yield {
+      type: "step_error",
+      step: "fetch",
+      message: `YouTube wouldn't return comments for ${data.skippedVideos} of ${data.videos.length} videos, so results use the rest.`,
+      retryable: true,
+    };
+  }
   if (!data.comments.length) {
     yield { type: "step_error", step: "fetch", message: "These videos have no public comments to read.", retryable: false };
     yield finish();
@@ -97,7 +191,7 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   const candidates = data.comments.filter(worthSorting);
   let labels: Map<string, CommentLabel>;
   try {
-    const res = await cached(cacheKey("sort", MODELS.sort, candidates.map((c) => c.id)), TTL.day, async () => {
+    const res = await cached(cacheKey("sort", MODELS.sort, SORT_SYSTEM, candidates.map((c) => c.id)), TTL.day, async () => {
       const r = await sortComments(candidates, meter);
       return { ...r, labels: [...r.labels] };
     });
@@ -134,7 +228,7 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   yield { type: "progress", step: "group", status: "start", message: `Grouping ${asks.length} asks into topics` };
   let cards: AskCard[];
   try {
-    const res = await cached(cacheKey("group", MODELS.group, asks.map((c) => c.id)), TTL.day, () =>
+    const res = await cached(cacheKey("group", MODELS.group, GROUP_SYSTEM, asks.map((c) => c.id)), TTL.day, () =>
       groupAsks(asks, meter, { channelTitle: data.channel.title }),
     );
     const byId = new Map(data.comments.map((c) => [c.id, c]));
@@ -149,29 +243,66 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   const droppedNote = stats.topicsDropped ? ` (${stats.topicsDropped} dropped for bad citations)` : "";
   yield { type: "progress", step: "group", status: "done", message: `Grouped into ${cards.length} topics${droppedNote}` };
   for (const card of cards) yield { type: "card", card };
+  yield { type: "health", health: channelHealth(data.videos, data.comments, labels, cards, asks) };
 
-  // 4. Ideas, streamed back as each one lands
+  // 4. Ideas, and 5. matching asks to the back catalogue, side by side. Events stream back as each lands.
   yield { type: "progress", step: "ideas", status: "start", message: "Writing a video idea for each topic" };
   const byId = new Map(data.comments.map((c) => [c.id, c]));
   const context = { channelTitle: data.channel.title, recentTitles: data.videos.map((v) => v.title) };
   const queue: PipelineEvent[] = [];
   let wake: (() => void) | undefined;
+  const push = (ev: PipelineEvent) => {
+    queue.push(ev);
+    wake?.();
+  };
   let failures = 0;
-  const work = mapLimit(cards, 4, async (card) => {
+  const ideas = mapLimit(cards, 4, async (card) => {
     try {
       const comments = card.commentIds.map((id) => byId.get(id)!).sort((a, b) => b.likeCount - a.likeCount);
-      const { value } = await cached(cacheKey("idea", MODELS.ideas, card.ask, card.commentIds), TTL.day, () =>
+      const { value } = await cached(cacheKey("idea", MODELS.ideas, IDEAS_SYSTEM, card.ask, card.commentIds), TTL.day, () =>
         writeIdea(card, comments, context, meter),
       );
-      queue.push({ type: "idea", cardId: card.id, idea: value });
+      push({ type: "idea", cardId: card.id, idea: value });
     } catch (err) {
       failures += 1;
-      queue.push({ type: "idea", cardId: card.id, error: (err as Error).message });
+      push({ type: "idea", cardId: card.id, error: (err as Error).message });
     }
-    wake?.();
+  }).then(() => {
+    push({
+      type: "progress",
+      step: "ideas",
+      status: "done",
+      message: failures ? `Wrote ${cards.length - failures} of ${cards.length} video ideas` : `Wrote ${cards.length} video ideas`,
+    });
+    if (failures) push({ type: "step_error", step: "ideas", message: `${failures} video ideas failed. Retry to fill them in.`, retryable: true });
   });
+
+  const catalog = data.catalog ?? [];
+  const coverage = catalog.length ? matchAsksToCatalog() : Promise.resolve();
+  async function matchAsksToCatalog() {
+    push({ type: "progress", step: "coverage", status: "start", message: `Checking ${catalog.length} past videos for answers` });
+    try {
+      const { value } = await cached(
+        cacheKey("coverage", MODELS.check, COVERAGE_SYSTEM, cards.map((c) => [c.id, c.ask]), catalog.map((v) => v.id)),
+        TTL.day,
+        async () => [...(await matchCatalog(cards, catalog, meter, data.channel.title))],
+      );
+      const matches = value.map(([cardId, match]) => ({ cardId, match }));
+      push({ type: "coverage", matches, catalogSize: catalog.length, checked: cards.length });
+      const answered = matches.filter((m) => m.match.level === "answers").length;
+      push({
+        type: "progress",
+        step: "coverage",
+        status: "done",
+        message: `${answered} of ${cards.length} asks already have a video that answers them, out of the latest ${catalog.length} uploads`,
+      });
+    } catch (err) {
+      push({ type: "step_error", step: "coverage", message: (err as Error).message, retryable: err instanceof LLMError && err.retryable });
+    }
+  }
+
   let settled = false;
-  work.finally(() => {
+  Promise.all([ideas, coverage]).finally(() => {
     settled = true;
     wake?.();
   });
@@ -179,14 +310,6 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
     if (!queue.length) await new Promise<void>((r) => (wake = r));
     while (queue.length) yield queue.shift()!;
   }
-  await work;
-  yield {
-    type: "progress",
-    step: "ideas",
-    status: "done",
-    message: failures ? `Wrote ${cards.length - failures} of ${cards.length} video ideas` : `Wrote ${cards.length} video ideas`,
-  };
-  if (failures) yield { type: "step_error", step: "ideas", message: `${failures} video ideas failed. Retry to fill them in.`, retryable: true };
 
   yield finish();
 }

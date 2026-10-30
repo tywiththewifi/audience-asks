@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groundTopics, mergeDuplicates, quoteIsInComment } from "../src/lib/pipeline/grounding";
+import { groundTopics, mergeDuplicates, quoteIsInComment, refNumber } from "../src/lib/pipeline/grounding";
 import { comment } from "./helpers";
 
 describe("quoteIsInComment", () => {
@@ -76,5 +76,20 @@ describe("mergeDuplicates", () => {
     expect(merged).toBe(1);
     expect(topics).toHaveLength(2);
     expect(topics[0].commentIds.sort()).toEqual(["1", "2", "3", "4", "5"]);
+  });
+});
+
+describe("refNumber", () => {
+  it.each([
+    ["v12", 12],
+    [" v12 ", 12],
+    ["v12. Some title", 12],
+    ["V3", 3],
+    ["v", undefined],
+    ["x12", undefined],
+    ["v12abc", 12],
+    ["a1. Why does it?", undefined],
+  ] as const)("%j", (ref, n) => {
+    expect(refNumber(ref, "v")).toBe(n);
   });
 });

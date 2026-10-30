@@ -14,7 +14,7 @@ export const SORT_SYSTEM = `You label YouTube comments for a creator who wants t
 Give every comment exactly one label:
 - question: the viewer asks something they want answered (how, why, what gear, will you, can you explain…). Rhetorical or joking questions are not questions.
 - request: the viewer asks the creator to make, cover, review, try or bring back something ("do a video on…", "part 2 please", "review the X next").
-- complaint: the viewer reports a problem with the content, audio, pacing, sponsor, upload schedule or a product the creator showed, in a way the creator could act on.
+- complaint: the viewer is frustrated with the video (content, audio, pacing, sponsor, upload schedule), with a product the creator showed, or with the subject the channel covers (for example a platform policy on a channel about that platform), in a way the creator could answer or act on. General venting about life or the world is other.
 - praise: thanks, compliments, "great video" and similar, with no ask inside.
 - other: jokes, timestamps, reactions, opinions, chatting with other viewers, anything else.
 - spam: scams, bots, self-promotion, links to unrelated channels, "check my channel".

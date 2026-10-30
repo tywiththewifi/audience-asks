@@ -1,4 +1,4 @@
-import type { Channel, Comment, Video } from "./types";
+import type { Channel, Comment, SearchResult, Video } from "./types";
 
 const BASE = "https://www.googleapis.com/youtube/v3";
 
@@ -36,24 +36,35 @@ export function parseChannelInput(input: string): ChannelRef {
   return { kind: "handle", value: `@${handle}` };
 }
 
-/** Tracks quota units spent, using Google's published costs (every call we make costs 1). */
+export function isQuotaError(err: unknown) {
+  return err instanceof YouTubeError && (err.reason === "quotaExceeded" || err.reason === "dailyLimitExceeded");
+}
+
+/** Tracks quota units spent, using Google's published costs (1 per call, 100 for a search). */
 export class Quota {
   units = 0;
 }
 
-async function get<T>(endpoint: string, params: Record<string, string>, quota: Quota): Promise<T> {
+async function get<T>(endpoint: string, params: Record<string, string>, quota: Quota, cost = 1): Promise<T> {
   const search = new URLSearchParams(params);
   // In the cloud dev container the key is injected by a proxy; everywhere else it comes from env.
   if (process.env.YOUTUBE_API_KEY) search.set("key", process.env.YOUTUBE_API_KEY);
-  quota.units += 1;
-  const res = await fetch(`${BASE}/${endpoint}?${search}`, { cache: "no-store" });
+  let res: Response;
+  for (let attempt = 0; ; attempt++) {
+    quota.units += cost;
+    res = await fetch(`${BASE}/${endpoint}?${search}`, { cache: "no-store" });
+    // YouTube sometimes answers a valid request with a 5xx or a "processingFailure" 400. Those pass on a retry.
+    const transient = res.status >= 500 || (res.status === 400 && (await res.clone().text()).includes("processingFailure"));
+    if (!transient || attempt === 2) break;
+    await new Promise((r) => setTimeout(r, 400 * 2 ** attempt));
+  }
   if (!res.ok) {
     let reason: string | undefined;
     let message = `YouTube API ${endpoint} failed with ${res.status}`;
     try {
       const body = (await res.json()) as { error?: { message?: string; errors?: { reason?: string }[] } };
       reason = body.error?.errors?.[0]?.reason;
-      if (body.error?.message) message = body.error.message;
+      if (body.error?.message) message = body.error.message.replace(/<[^>]+>/g, "");
     } catch {
       // keep the generic message
     }
@@ -98,11 +109,15 @@ type PlaylistItemsResponse = {
   }[];
 };
 
-/** Latest uploads via the uploads playlist: 1 unit per 50 videos, instead of 100 for search.list. */
-export async function getRecentVideos(channel: Channel, max: number, quota: Quota): Promise<Video[]> {
+/**
+ * Latest uploads via the uploads playlist: 1 unit per 50 videos, instead of 100 for search.list.
+ * With `since` (ms), videos published before it are left out. The playlist runs newest first, so paging stops there.
+ */
+export async function getRecentVideos(channel: Channel, max: number, quota: Quota, since?: number): Promise<Video[]> {
   const videos: Video[] = [];
   let pageToken: string | undefined;
-  while (videos.length < max) {
+  let reachedCutoff = false;
+  while (videos.length < max && !reachedCutoff) {
     const data = await get<PlaylistItemsResponse>(
       "playlistItems",
       {
@@ -115,10 +130,15 @@ export async function getRecentVideos(channel: Channel, max: number, quota: Quot
     );
     for (const item of data.items ?? []) {
       if (item.snippet.title === "Private video" || item.snippet.title === "Deleted video") continue;
+      const publishedAt = item.contentDetails.videoPublishedAt ?? item.snippet.publishedAt;
+      if (since && Date.parse(publishedAt) < since) {
+        reachedCutoff = true;
+        continue;
+      }
       videos.push({
         id: item.contentDetails.videoId,
         title: item.snippet.title,
-        publishedAt: item.contentDetails.videoPublishedAt ?? item.snippet.publishedAt,
+        publishedAt,
         thumbnail: item.snippet.thumbnails?.medium?.url,
       });
     }
@@ -185,9 +205,86 @@ export async function getVideoComments(video: Video, maxPerVideo: number, quota:
     }
   } catch (err) {
     if (err instanceof YouTubeError && err.reason === "commentsDisabled") return [];
+    // A later page failing still leaves us the comments we already have.
+    if (comments.length && !isQuotaError(err)) return comments;
     throw err;
   }
   return comments;
+}
+
+type SearchResponse = {
+  items?: { id: { videoId?: string }; snippet: { title: string; description: string; channelId: string; channelTitle: string; publishedAt: string } }[];
+};
+
+type VideosResponse = {
+  items?: {
+    id: string;
+    snippet: { thumbnails?: { medium?: { url: string } } };
+    statistics?: { viewCount?: string };
+    contentDetails?: { duration?: string };
+  }[];
+};
+
+/** views, length and thumbnail for up to any number of videos, 1 unit per 50. */
+export async function getVideoDetails(ids: string[], quota: Quota) {
+  const byId = new Map<string, NonNullable<VideosResponse["items"]>[number]>();
+  for (let i = 0; i < ids.length; i += 50) {
+    const data = await get<VideosResponse>("videos", { part: "snippet,statistics,contentDetails", id: ids.slice(i, i + 50).join(",") }, quota);
+    for (const v of data.items ?? []) byId.set(v.id, v);
+  }
+  return byId;
+}
+
+/** "PT1H2M3S" to seconds. */
+export function durationSeconds(iso: string | undefined) {
+  const m = iso?.match(/^P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
+  if (!m) return undefined;
+  const [, d, h, min, sec] = m.map((x) => Number(x ?? 0));
+  return d * 86400 + h * 3600 + min * 60 + sec;
+}
+
+/**
+ * YouTube search for videos matching `q`, with view counts and lengths.
+ * search.list costs 100 units, so callers should cache and only search when asked.
+ */
+export async function searchVideos(q: string, max: number, quota: Quota): Promise<SearchResult[]> {
+  const found = await get<SearchResponse>(
+    "search",
+    { part: "snippet", type: "video", q, maxResults: String(Math.min(50, max)), order: "relevance" },
+    quota,
+    100,
+  );
+  const hits = (found.items ?? []).filter((i) => i.id.videoId);
+  if (!hits.length) return [];
+  const byId = await getVideoDetails(
+    hits.map((h) => h.id.videoId!),
+    quota,
+  );
+  return hits.map((h) => {
+    const d = byId.get(h.id.videoId!);
+    return {
+      id: h.id.videoId!,
+      title: decodeEntities(h.snippet.title),
+      description: decodeEntities(h.snippet.description),
+      channelId: h.snippet.channelId,
+      channelTitle: decodeEntities(h.snippet.channelTitle).trim(),
+      publishedAt: h.snippet.publishedAt,
+      views: d?.statistics?.viewCount ? Number(d.statistics.viewCount) : undefined,
+      seconds: durationSeconds(d?.contentDetails?.duration),
+      thumbnail: d?.snippet.thumbnails?.medium?.url,
+    };
+  });
+}
+
+/** search.list returns HTML-escaped snippets ("Don&#39;t"). */
+export function decodeEntities(text: string) {
+  return text
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
 }
 
 export async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T, index: number) => Promise<R>): Promise<R[]> {
