@@ -10,7 +10,7 @@ import { z } from "zod";
 import { toMarkdown } from "../src/lib/markdown";
 import { checkIdea } from "../src/lib/pipeline/existing";
 import { runAudienceAsks } from "../src/lib/pipeline/run";
-import type { AskCard, ChannelHealth, DateRange } from "../src/lib/types";
+import type { AskCard, DateRange } from "../src/lib/types";
 
 const server = new McpServer({ name: "audience-asks", version: "0.1.0" });
 
@@ -19,7 +19,7 @@ server.registerTool(
   {
     title: "Audience Asks",
     description:
-      "Reads the comments on a YouTube channel's recent videos and returns what viewers keep asking for: ranked topics with how many distinct viewers asked, real quoted comments with links, and a video idea for each, plus channel health: which asks a past video already answers, praise vs complaints, and outlier videos. Use it when a creator asks what their audience wants, what to make next, or what questions keep coming up.",
+      "Reads the comments on a YouTube channel's recent videos and returns what viewers keep asking for: ranked topics with how many distinct viewers asked, real quoted comments with links, and a video idea for each, plus which asks a past video already answers. Use it when a creator asks what their audience wants, what to make next, or what questions keep coming up.",
     inputSchema: {
       channel: z.string().describe("A channel @handle, channel URL or UC… channel id"),
       videos: z.number().int().min(5).max(50).optional().describe("How many recent videos to read (default 30)"),
@@ -39,14 +39,12 @@ server.registerTool(
     const errors: string[] = [];
     let title = channel;
     let span: { comments?: DateRange; videos?: DateRange } = {};
-    let health: ChannelHealth | undefined;
     for await (const ev of runAudienceAsks(channel, { maxVideos: videos ?? 30, months })) {
       if (ev.type === "channel") {
         title = ev.channel.title;
         span = { comments: ev.range, videos: ev.videoRange };
       }
       if (ev.type === "card") cards.set(ev.card.id, ev.card);
-      if (ev.type === "health") health = ev.health;
       if (ev.type === "coverage") for (const m of ev.matches) if (cards.has(m.cardId)) cards.get(m.cardId)!.answeredBy = m.match;
       if (ev.type === "idea" && cards.has(ev.cardId)) cards.get(ev.cardId)!.idea = ev.idea;
       if (ev.type === "step_error") errors.push(`${ev.step}: ${ev.message}`);
@@ -56,7 +54,7 @@ server.registerTool(
       return { isError: errors.length > 0, content: [{ type: "text", text: errors.join("\n") || "No questions or requests found in recent comments." }] };
     }
     const note = errors.length ? `\n\nSome steps had problems: ${errors.join("; ")}` : "";
-    return { content: [{ type: "text", text: toMarkdown(title, list, span, health) + note }] };
+    return { content: [{ type: "text", text: toMarkdown(title, list, span) + note }] };
   },
 );
 

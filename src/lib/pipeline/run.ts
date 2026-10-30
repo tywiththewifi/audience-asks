@@ -12,10 +12,9 @@ import {
   type RunStats,
   type Video,
 } from "../types";
-import { Quota, YouTubeError, getChannel, getRecentVideos, getVideoComments, getVideoDetails, isQuotaError, mapLimit, parseChannelInput } from "../youtube";
+import { Quota, YouTubeError, getChannel, getRecentVideos, getVideoComments, isQuotaError, mapLimit, parseChannelInput } from "../youtube";
 import { buildCard, rankCards } from "./cards";
 import { COVERAGE_SYSTEM, matchCatalog } from "./coverage";
-import { channelHealth } from "./health";
 import { GROUP_SYSTEM, groupAsks } from "./group";
 import { IDEAS_SYSTEM, writeIdea } from "./ideas";
 import { SORT_SYSTEM, sortComments, worthSorting } from "./sort";
@@ -63,14 +62,6 @@ async function fetchChannelData(input: string, maxVideos: number, perVideo: numb
   const catalog = await getRecentVideos(channel, Math.max(CATALOG_SIZE, maxVideos), quota);
   const since = monthsAgo(months);
   const videos = catalog.filter((v) => !since || Date.parse(v.publishedAt) >= since).slice(0, maxVideos);
-  const details = await getVideoDetails(
-    videos.map((v) => v.id),
-    quota,
-  );
-  for (const v of videos) {
-    const views = details.get(v.id)?.statistics?.viewCount;
-    if (views !== undefined) v.views = Number(views);
-  }
   let skippedVideos = 0;
   // One video's comments failing (after retries) shouldn't sink the whole channel. Quota errors still do.
   const lists = await mapLimit(videos, 8, async (v) => {
@@ -243,7 +234,6 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
   const droppedNote = stats.topicsDropped ? ` (${stats.topicsDropped} dropped for bad citations)` : "";
   yield { type: "progress", step: "group", status: "done", message: `Grouped into ${cards.length} topics${droppedNote}` };
   for (const card of cards) yield { type: "card", card };
-  yield { type: "health", health: channelHealth(data.videos, data.comments, labels, cards, asks) };
 
   // 4. Ideas, and 5. matching asks to the back catalogue, side by side. Events stream back as each lands.
   yield { type: "progress", step: "ideas", status: "start", message: "Writing a video idea for each topic" };
@@ -288,7 +278,7 @@ export async function* runAudienceAsks(input: string, opts: RunOptions = {}): As
         async () => [...(await matchCatalog(cards, catalog, meter, data.channel.title))],
       );
       const matches = value.map(([cardId, match]) => ({ cardId, match }));
-      push({ type: "coverage", matches, catalogSize: catalog.length, checked: cards.length });
+      push({ type: "coverage", matches });
       const answered = matches.filter((m) => m.match.level === "answers").length;
       push({
         type: "progress",
